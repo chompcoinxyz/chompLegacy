@@ -24,7 +24,7 @@ export default function Minting({
                   {/* {txHash && <p>Transaction Hash: <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className='text-blue-600 hover:text-blue-500'>{txHash}</a></p>} */}
               </div>
             )}
-            {nfts.map((nft) => (
+            {nfts?.length > 0 && nfts.map((nft) => (
               <div key={nft.tokenId} className="flex flex-row flex-wrap">
                 <NftCard 
                   nft={nft} 
