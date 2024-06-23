@@ -22,12 +22,18 @@ import Minting from './Minting';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 import Nav from './Nav';
+import BgEllipse from '../elems/BgEllipse';
+import LegacyTabs from '../elems/LegacyTabs';
+import ConnectWalletHero from './ConnectWalletHero';
+
 
 const queryClient = new QueryClient();
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 const legaciesAddress = process.env.NEXT_PUBLIC_LEGACIES_ADDRESS;
+
+const bg = '../../../public/img/bg_ellipse.svg'
 
 export default function Hero({  }) {
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -58,7 +64,8 @@ export default function Hero({  }) {
   }
 
   const [totalStaked, setTotalStaked] = useState(null); 
-  const [activeTab, setActiveTab] = useState(2);
+  const [activeTab, setActiveTab] = useState(1);
+  const [activeLegacyTab, setActiveLegacyTab] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [stakeLoading, setStakeLoading] = useState(false);
@@ -188,14 +195,13 @@ export default function Hero({  }) {
       console.log("======= accounts in USEEFFECT:", accounts);
 
       if (accounts.length > 0) {
-        // fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
-        fetchDots(contractInstance, web3, accounts[0])
-        fetchUserChompBalance(accounts[0], tokenContractInstance, web3)
-        fetchUserStakedTokens(accounts[0], contractInstance, web3)
+        fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
+        // fetchDots(contractInstance, web3, accounts[0])
+        // fetchUserChompBalance(accounts[0], tokenContractInstance, web3)
+        // fetchUserStakedTokens(accounts[0], contractInstance, web3)
         setAccount(accounts[0]);
       } 
 
-      // const nftData = await fetchNFTData(contractInstance, legaciesContractInstance, web3);
       const nftData = await fetchNFTData(legaciesContractInstance);
       console.log('==== nftData', nftData)
       setNfts(nftData);
@@ -218,9 +224,21 @@ export default function Hero({  }) {
     },
   });
 
+  const fetchAllUserTokens = async (wallet, contractInstance, web3, tokenContractInstance) => {
+    if (!contractInstance || !web3) return;
+
+    try {
+      fetchDots(contractInstance, web3, wallet)
+      fetchUserChompBalance(wallet, tokenContractInstance, web3)
+      fetchUserStakedTokens(wallet, contractInstance, web3)
+    } catch (error) {
+      console.error('Failed to fetch user tokens:', error);
+    }
+  };
+
 
   const connectWallet = async () => {
-    // console.log('====== connectWallet starting...');
+    console.log('====== connectWallet starting...');
     if (window.ethereum && window.ethereum.isMetaMask) {
       setIsConnecting(true);
       try {
@@ -232,7 +250,8 @@ export default function Hero({  }) {
           alert('Please connect to MetaMask.');
         } else {
           setAccount(accounts[0]);
-          fetchDots(contract, web3, accounts[0])
+          fetchDots(contract, web3, accounts[0]);
+          fetchAllUserTokens(accounts[0], contract, web3, tokenContract);
           return accounts[0];
         }
       } catch (error) {
@@ -374,7 +393,7 @@ export default function Hero({  }) {
     }
 
     const amount = watch("amount");
-    if (amount <= 0) {
+    if (amount <= 0 || !amount || amount.length === 0 || isNaN(amount) || parseFloat(amount) <= 0) {
       alert("Please enter a valid amount to stake.");
       return;
     }
@@ -393,12 +412,12 @@ export default function Hero({  }) {
       // Update total staked tokens and user staked tokens
       await fetchUserStakedTokens(effectiveAccount, contract, web3);
 
-      // fetchUserRainBalance(effectiveAccount, tokenContract, web3)
-      await fetchTotalStaked()
+      await fetchTotalStaked();
 
       // Reset the amount input field
       reset({ amount: '' });
       setStakeLoading(false);
+      setIsApproved(false);
     } catch (error) {
       console.error("Staking error:", error);
       alert("Staking failed. See the console for more information.");
@@ -413,6 +432,11 @@ export default function Hero({  }) {
         return setWithdrawLoading(false);
     }
 
+    if (amountWithdraw <= 0 || !amountWithdraw || amountWithdraw.length === 0 || isNaN(amountWithdraw) || parseFloat(amountWithdraw) <= 0) {
+      alert("Please enter a valid amount to unstake.");
+      return;
+    }
+
     try {
         setWithdrawLoading(true);
 
@@ -421,7 +445,7 @@ export default function Hero({  }) {
         console.log('===== response in onWithdraw', response)
 
         // Alert success message
-        alert("Withdraw successful! Your tokens have been returned to your wallet.");
+        alert("Unstake successful! Your tokens have been returned to your wallet.");
 
         // Update UI - fetch latest total staked tokens and user-specific staked tokens
         await fetchTotalStaked();
@@ -479,76 +503,78 @@ export default function Hero({  }) {
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
         <OnchainKitProvider apiKey="7d-MQxGJf0QXWGSx-GqLQKZDUQP8G74Z">
-          <div className="max-w-[1200px] mx-auto px-4">
-            <Nav connectWallet={connectWallet} account={account} />
-            
-            <div className='w-full flex bg-white mt-[45px] lg:h-screen'>
-              <div className="w-full">
-                <div className="flex flex-col mb-[20px]">
-                  <h1 className="text-[35px] mb-2 font-bold">Chomp Legacy</h1>
-                  <h2 className="text-[30px] mb-2 font-semibold">Stake CHOMP + earn Dots</h2>
-                  <p className="text-[20px] mb-0">0.01 Dots for 1 staked CHOMP per minute (for tests)</p>
-                  <p className="text-[20px] mb-0">100k staked CHOMP tokens = 1k Dots per minute (for tests)</p>
-                </div>
+          <div className="max-w-[1300px] mainBg mx-auto px-4 relative">
+            {/* <Nav connectWallet={connectWallet} account={account} /> */}
+           
+            {/* <div className="absolute w-[350px] z-0"><BgEllipse/></div> */}
 
-                <div className="">
+            <div className="pt-[25px] z-10">
+              {/* <ConnectWalletHero connectWallet={connectWallet} account={account} isConnecting={isConnecting} /> */}
+              
+              <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]">
+                <Nav connectWallet={connectWallet} account={account} />
+                <h1 className="font-amiger text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
+                <div className="w-full flex justify-center mt-[30px] mb-[40px]">
+                  {!account ? (
+                    <button
+                      type="submit" 
+                      onClick={connectWallet}
+                      disabled={isConnecting}
+                      className={`w-[285px] text-center py-[12px] px-[25px] text-[19px] leading-[27px] rounded-[9px] opacity-99 font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#F88040] to-[#FD603D] hover:opacity-80 btn__shadow`}
+                    >
+                      Connect Wallet
+                    </button>
+                  ) : (
+                    <div className="">
+                      <Deposit 
+                        isUnlocked={isUnlocked}
+                        isWalletConnected={isWalletConnected}
+                        onStake={onStake}
+                        amount={amount}
+                        handleSubmit={handleSubmit}
+                        register={register}
+                        onApprove={onApprove}
+                        isApproved={isApproved}
+                        loading={loading}
+                        stakeLoading={stakeLoading}
+                        handleMaxClick={handleMaxClick}
+                        balance={userChompBalanceTokens}
+                        userDots={userDots}
+                        setActiveTab={setActiveTab}
+                        activeTab={activeTab}
+                        onWithdraw={onWithdraw}
+                        withdrawLoading={withdrawLoading}
+                        handleWithdrawMaxClick={handleWithdrawMaxClick}
+                        amountWithdraw={amountWithdraw}
+                        userStakedTokens={userStakedTokens} 
+                      />
+                    </div>
+                  )}
+                  
                 </div>
+              </div>
+
+            </div>
+            
+            
+            <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
+              <div className="w-full">
 
                 {/* <ConnectWallet /> */}
 
-                <div className="stacking max-w-[500px] bg-secondary rounded-[14px] border border-accent mx-auto">
-                  <div className="stacking__body p-4 md:p-6">
-                    <StakingMenu activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <hr className="w-full h-[1px] mx-auto mt-6 mb-6 bg-accent border-0 rounded"></hr>
-                    <>
-                      {activeTab === 1 && (
-                        <Minting 
-                          nfts={nfts}
-                          onMint={onMint} 
-                          mintLoading={mintLoading} 
-                          txHash={txHash} 
-                          txStatus={txStatus} 
-                          nftLoading={nftLoading}
-                        />
-                      )}
-                      {activeTab === 2 && (
-                        <Deposit 
-                          totalStakedTokens={totalStaked}
-                          isUnlocked={isUnlocked}
-                          userStakedTokens={0}
-                          isWalletConnected={isWalletConnected}
-                          onStake={onStake}
-                          amount={amount}
-                          handleSubmit={handleSubmit}
-                          register={register}
-                          onApprove={onApprove}
-                          isApproved={isApproved}
-                          loading={loading}
-                          stakeLoading={stakeLoading}
-                          handleMaxClick={handleMaxClick}
-                          balance={userChompBalanceTokens}
-                          userDots={userDots}
-                        />
-                      )}
-                      {activeTab === 3 && (
-                        <Withdraw
-                          userStakedTokens={userStakedTokens} 
-                          onWithdraw={onWithdraw}
-                          amount={amount}
-                          withdrawLoading={withdrawLoading}
-                          isUnlocked={isUnlocked}
-                          isLockTimeExpired={true}
-                          isUnlockInitiated={true}
-                          unlockMessage={"unlockMessage"}
-                          handleSubmit={handleSubmit}
-                          handleMaxClick={handleWithdrawMaxClick}
-                          register={register}
-                          amountWithdraw={amountWithdraw}
-                        />
-                      )}
-                    </>
-                  </div>
-                </div>
+                <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
+                
+                {activeLegacyTab === 1 && (
+                  <Minting 
+                    nfts={nfts}
+                    onMint={onMint} 
+                    mintLoading={mintLoading} 
+                    txHash={txHash} 
+                    txStatus={txStatus} 
+                    nftLoading={nftLoading}
+                  />
+                )}
+            
               </div>
             </div>
           </div>

@@ -8,18 +8,30 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#007AFF",
+        primary: "#F98140",
         secondary: "#F9FCFF",
         accent: "#C4D3E3",
         accent2: "#BACCDF",
+        bgMain: '#202037',
         darkMain: "#1E1E1E",
-        btnDisabled: '#E5EEF7',
+        btnDisabled: '#31313B',
         btnGray: '#A5B8CC',
         withdrawGray: '#595959',
+        dark: '#151520',
       },
       fontFamily: {
-        'sans': ['Lato', 'sans-serif'] 
+        // 'sans': ['Lato', 'sans-serif'], 
+        'poppins': ['Poppins', 'sans-serif'],
+        'amiger': ['Amiger', 'sans-serif'],
       },
+      fontWeight: {
+        'normal': 400,
+        'medium': 500,
+        'semibold': 700,
+      },
+      opacity: {
+        '99': '.9999',
+      }
     },
   },
   plugins: [],
