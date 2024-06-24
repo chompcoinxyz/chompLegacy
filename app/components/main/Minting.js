@@ -8,7 +8,8 @@ export default function Minting({
   mintLoading,
   txHash,
   nftLoading,
-  isUserNfts
+  isUserNfts,
+  account
 }) {
   
   console.log('==== isUserNfts', isUserNfts)
@@ -38,7 +39,7 @@ export default function Minting({
                 </div>
               ))}
               {isUserNfts && nfts?.length === 0 && (
-                <p className="text-[19px] font-medium text-textGray pt-9">You don’t have any Legacy yet</p>
+                <p className="text-[19px] font-medium text-textGray pt-9">{account ? 'You don’t have any Legacy yet' : 'Please connect your wallet'}</p>
               )}
             </div>
           </>

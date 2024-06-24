@@ -595,6 +595,7 @@ export default function Hero({  }) {
                     txHash={txHash} 
                     txStatus={txStatus} 
                     nftLoading={nftLoading}
+                    account={account}
                   />
                 )}
 
@@ -607,6 +608,7 @@ export default function Hero({  }) {
                     txStatus={txStatus} 
                     nftLoading={nftLoading}
                     isUserNfts={true}
+                    account={account}
                   />
                 )}
             
