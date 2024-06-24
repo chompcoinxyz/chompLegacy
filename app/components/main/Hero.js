@@ -12,19 +12,19 @@ import { OnchainKitProvider } from '@coinbase/onchainkit';
 // import { WagmiProvider } from '@coinbase/wallet-sdk';
 // import WagmiProvider from '../providers/WalletProvider';
 // import OnchainKitProvider from '../providers/OnchainKit';
-import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
+// import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import StakingMenu from './StakingMenu';
+// import StakingMenu from './StakingMenu';
 import Minting from './Minting';
 import Deposit from './Deposit';
-import Withdraw from './Withdraw';
+// import Withdraw from './Withdraw';
 import Nav from './Nav';
-import BgEllipse from '../elems/BgEllipse';
+// import BgEllipse from '../elems/BgEllipse';
 import LegacyTabs from '../elems/LegacyTabs';
-import ConnectWalletHero from './ConnectWalletHero';
+// import ConnectWalletHero from './ConnectWalletHero';
 
 
 const queryClient = new QueryClient();
@@ -53,7 +53,7 @@ export default function Hero({  }) {
 
   async function getProvider() {
     // console.log("========= window.ethereum in getProvider", window.ethereum);
-    if (window.ethereum) {
+    if (typeof window !== 'undefined' && window.ethereum) {
       return new Web3(window.ethereum);
     } else {
       // Mobile
@@ -77,10 +77,12 @@ export default function Hero({  }) {
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [userStakedTokens, setUserStakedTokens] = useState(0);
   const [nfts, setNfts] = useState([]);
+  const [userNfts, setUserNfts] = useState([]);
   const [mintLoading, setMintLoading] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [txStatus, setTxStatus] = useState('');
   const [nftLoading, setNftLoading] = useState(false);
+  const [nftUserLoading, setNftUSerLoading] = useState(false);
 
 
   const fetchTotalStaked = async (contractInstance, web3) => {
@@ -115,20 +117,24 @@ export default function Hero({  }) {
     }
   }
 
-  async function fetchNFTData(contract) {
+  async function fetchNFTData(contract, wallet) {
     try {
       const lastId = await contract.methods.lastID().call();
-      const lastIdNumber = Number(lastId)
-      console.log('==== lastIdNumber in fetchNFTData', lastIdNumber)
+      const lastIdNumber = Number(lastId);
+      // console.log('==== lastIdNumber in fetchNFTData', lastIdNumber)
+      // console.log('====== wallet in fetchNFTData', wallet)
 
-      let nfts = [];
-      setNftLoading(true);
+      const nfts = [];
+      const userNFTs = [];
 
-      let sampleData = [
-        'https://smmagent.s3.amazonaws.com/chomp/chomp1.json',
-        'https://smmagent.s3.amazonaws.com/chomp/chomp2.json',
-        'https://smmagent.s3.amazonaws.com/chomp/chomp3.json',
-      ]
+      nfts?.length === 0 ? setNftLoading(true) : setNftUSerLoading(true);
+      // setNftLoading(true);
+
+      // let sampleData = [
+      //   'https://smmagent.s3.amazonaws.com/chomp/chomp1.json',
+      //   'https://smmagent.s3.amazonaws.com/chomp/chomp2.json',
+      //   'https://smmagent.s3.amazonaws.com/chomp/chomp3.json',
+      // ]
 
       for (let tokenId = 1; tokenId <= lastIdNumber; tokenId++) {
         try {
@@ -139,7 +145,7 @@ export default function Hero({  }) {
           const totalSupply = await contract.methods.totalSupply(tokenId).call();
           const maxIssuance = await contract.methods.maxIssuance(tokenId).call();
 
-          const test = sampleData[tokenId-1] // TESTS
+          // const test = sampleData[tokenId-1] // TESTS
 
           const response = await fetch(uri);
           // const response = await fetch(test);
@@ -155,27 +161,45 @@ export default function Hero({  }) {
             ...metadata
           });
 
+          // User's NFTs
+          if (wallet) {
+            const balance = await contract.methods.balanceOf(wallet, tokenId).call();
+            // console.log('====== balance in loop', balance)
+            if (balance > 0) {
+              userNFTs.push({
+                  tokenId,
+                  balance: Number(balance),
+                  uri,
+                  ...metadata
+              });
+            }
+          }
+
         } catch (error) {
-          // setNftLoading(false);
           console.error(`Failed to fetch or process data for token ID ${tokenId}:`, error);
         }
       }
       setNftLoading(false);
-      // console.log('==== nfts in fetchNFTData', nfts)
+      setNftUSerLoading(false);
+      // console.log('==== userNFTs in fetchNFTData', userNFTs)
+
+      setNfts(nfts);
+      setUserNfts(userNFTs);
 
       return nfts;
     } catch (error) {
       setNftLoading(false);
+      setNftUSerLoading(false);
       console.error("Failed to fetch NFT data:", error);
       return null;
     }
 }
 
   useEffect(() => {
-    // fetchAccount();
-  
     const loadBlockchainData = async () => {
-      await getProvider(); // This ensures the provider is ready
+      const provider = await getProvider(); // This ensures the provider is ready
+      if (!provider) return; // Early exit if no provider
+      
       const web3 = new Web3(window.ethereum);
       // console.log("======= WEB3 in USEEFFECT:", web3);
       setWeb3(web3);
@@ -202,9 +226,11 @@ export default function Hero({  }) {
         setAccount(accounts[0]);
       } 
 
-      const nftData = await fetchNFTData(legaciesContractInstance);
-      console.log('==== nftData', nftData)
-      setNfts(nftData);
+      let wallet = accounts?.length > 0 ? accounts[0] : null;
+      // console.log('==== wallet in hook', wallet)
+      const nftData = await fetchNFTData(legaciesContractInstance, wallet);
+      // console.log('==== nftData', nftData)
+      // setNfts(nftData);
     }
     loadBlockchainData();
   }, []);
@@ -250,8 +276,8 @@ export default function Hero({  }) {
           alert('Please connect to MetaMask.');
         } else {
           setAccount(accounts[0]);
-          fetchDots(contract, web3, accounts[0]);
           fetchAllUserTokens(accounts[0], contract, web3, tokenContract);
+          fetchNFTData(legaciesContract, accounts[0]);
           return accounts[0];
         }
       } catch (error) {
@@ -497,7 +523,7 @@ export default function Hero({  }) {
   };
 
   // console.log('===== account', account);
-  // console.log('===== amount', amount);
+  console.log('===== userNfts', userNfts);
  
   return (
     <QueryClientProvider client={queryClient}>
@@ -550,13 +576,10 @@ export default function Hero({  }) {
                       />
                     </div>
                   )}
-                  
                 </div>
               </div>
-
             </div>
-            
-            
+              
             <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
               <div className="w-full">
 
@@ -572,6 +595,18 @@ export default function Hero({  }) {
                     txHash={txHash} 
                     txStatus={txStatus} 
                     nftLoading={nftLoading}
+                  />
+                )}
+
+                {activeLegacyTab === 2 && (
+                  <Minting 
+                    nfts={userNfts}
+                    onMint={onMint} 
+                    mintLoading={mintLoading} 
+                    txHash={txHash} 
+                    txStatus={txStatus} 
+                    nftLoading={nftLoading}
+                    isUserNfts={true}
                   />
                 )}
             

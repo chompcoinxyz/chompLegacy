@@ -18,6 +18,7 @@ module.exports = {
         btnGray: '#A5B8CC',
         withdrawGray: '#595959',
         dark: '#151520',
+        textGray: "#A2A2A2",
       },
       fontFamily: {
         // 'sans': ['Lato', 'sans-serif'], 

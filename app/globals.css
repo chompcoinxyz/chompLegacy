@@ -64,6 +64,24 @@ data-testid[ockConnectAccountButtonInner] {
   pointer-events: none;
 }
 
+.mainBg2 {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: #202037; 
+}
+
+.mainBg2::before {
+  content: '';
+  position: absolute;
+  width: 335.89px;
+  height: 353.01px;
+  left: calc(50% - 167.94px); /* Center the circle horizontally */
+  top: 279.4px; /* Position from the top as required */
+  background: radial-gradient(circle, #1849fbb8 72%, transparent 72%);
+  pointer-events: none;
+}
+
 .btn__shadow {
   box-shadow: 0px 0px 25px 0px #FF5C009E;
 }

@@ -6,7 +6,7 @@ export default function LegacyTabs({ activeTab, setActiveTab }) {
     { label: 'My legacy', styles: 'pl-6'},
   ]
   return (
-    <div className="w-[300px] flex flex-row items-center mx-auto underline underline-offset-8 decoration-2 decoration-slate-400">
+    <div className="flex flex-row justify-center items-center underline underline-offset-8 decoration-2 decoration-slate-400">
       {items.map((item, index) => (
         <div 
           key={index} 

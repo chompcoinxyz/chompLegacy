@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { OnchainKitProvider,  } from '@coinbase/onchainkit';
 import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
-import { WagmiProvider, CoinbaseWalletSDK, useWallet,  } from '@coinbase/wallet-sdk';
+// import { WagmiProvider, CoinbaseWalletSDK, useWallet,  } from '@coinbase/wallet-sdk';
 import { useAccount, useDisconnect } from 'wagmi';
 
-const sdk = new CoinbaseWalletSDK({
-  appName: 'Chomp Legacy',
-  appChainIds: [8453]
-});
+// const sdk = new CoinbaseWalletSDK({
+//   appName: 'Chomp Legacy',
+//   appChainIds: [8453]
+// });
 
 export default function ConnectWallet({ }) {
   const [wallet, setWallet] = useState(null);
@@ -26,7 +26,7 @@ export default function ConnectWallet({ }) {
   return (
       <div className="flex flex-col w-[200px]">
         {(() => {
-  
+
           return (
             <div className="flex items-center justify-center">
               {!address ? (

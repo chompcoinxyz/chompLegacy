@@ -8,8 +8,11 @@ export default function Minting({
   mintLoading,
   txHash,
   nftLoading,
+  isUserNfts
 }) {
   
+  console.log('==== isUserNfts', isUserNfts)
+  console.log('==== nfts', nfts)
   return (
     <div className="w-full bg-bgMain flex flex-col items-center justify-center">
       <div className="w-full mt-8">
@@ -30,9 +33,13 @@ export default function Minting({
                     nft={nft} 
                     onMint={onMint} 
                     mintLoading={mintLoading} 
+                    isUserNfts={isUserNfts}
                   />
                 </div>
               ))}
+              {isUserNfts && nfts?.length === 0 && (
+                <p className="text-[19px] font-medium text-textGray pt-9">You don’t have any Legacy yet</p>
+              )}
             </div>
           </>
         )}
