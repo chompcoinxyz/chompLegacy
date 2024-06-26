@@ -2,30 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Web3 from 'web3';
-// import { ethers } from 'ethers';
 import ChompLegacyABI from '../../../abis/ChompLegacyABI.json';
 import LegaciesABI from '../../../abis/LegaciesABI.json';
 import MockChompCoinABI from '../../../abis/MockChompCoinABI.json';
-// import ConnectWallet from './ConnectWallet';
+import ConnectWallet from './ConnectWallet';
+import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-// import { QueryClientProvider } from '@coinbase/wallet-sdk';
-// import { WagmiProvider } from '@coinbase/wallet-sdk';
-// import WagmiProvider from '../providers/WalletProvider';
-// import OnchainKitProvider from '../providers/OnchainKit';
-// import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
+import { WagmiProvider, createConfig, http, cookieToInitialState } from 'wagmi';
+// import { baseSepolia } from 'wagmi/chains';
+import { baseSepolia } from 'viem/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// import StakingMenu from './StakingMenu';
 import Minting from './Minting';
 import Deposit from './Deposit';
-// import Withdraw from './Withdraw';
 import Nav from './Nav';
 // import BgEllipse from '../elems/BgEllipse';
 import LegacyTabs from '../elems/LegacyTabs';
+import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary'
+
+import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
+
+
 // import ConnectWalletHero from './ConnectWalletHero';
 
+// import Cookies from 'js-cookie'; 
+// import { config } from '../../../config/index';
+// import { config as web3ModalConfig } from '../../../config/index';
+// import Web3ModalProvider from '../../../context/index';
 
 const queryClient = new QueryClient();
 
@@ -50,6 +53,34 @@ export default function Hero({  }) {
   const [tokenContract, setTokenContract] = useState(null);
   const [legaciesContract, setLegaciesContract] = useState(null);
 
+  // const [initialState, setInitialState] = useState(null);
+  // const [initialState, setInitialState] = useState(config);
+  // useEffect(() => {
+  //   const cookie = Cookies.get('cookie'); // Get the cookie
+  //   if (cookie) {
+  //     const initialState = cookieToInitialState(config, cookie);
+  //     setInitialState(initialState);
+  //   } else {
+  //     const initialState = cookieToInitialState(config);
+  //     setInitialState(initialState);
+  //   }
+  // }, []);
+  // console.log('===== config', config)
+  // console.log('===== initialState', initialState)
+
+  const wagmiConfig = createConfig({
+    chains: [baseSepolia],
+    connectors: [
+      coinbaseWallet({
+        appChainIds: [baseSepolia.id],
+        appName: 'CHOMP',
+      }),
+    ],
+    ssr: true,
+    transports: {
+      [baseSepolia.id]: http(),
+    },
+  });
 
   async function getProvider() {
     // console.log("========= window.ethereum in getProvider", window.ethereum);
@@ -83,6 +114,21 @@ export default function Hero({  }) {
   const [txStatus, setTxStatus] = useState('');
   const [nftLoading, setNftLoading] = useState(false);
   const [nftUserLoading, setNftUSerLoading] = useState(false);
+
+  const [zoraData, setZoraData] = useState(false);
+  const networkInfo = {
+    // network: ZDKNetwork.Ethereum,
+    // chain: ZDKChain.Mainnet,
+    network: ZDKNetwork.Base,
+    chain: ZDKChain.BaseMainnet,
+  }
+  const API_ENDPOINT = "https://api.zora.co/graphql";
+  const args = { 
+      endPoint:API_ENDPOINT, 
+      networks:[networkInfo], 
+      apiKey: process.env.NEXT_PUBLIC_ZORA_KEY 
+    } 
+  const zdk = new ZDK(args);
 
 
   const fetchTotalStaked = async (contractInstance, web3) => {
@@ -128,13 +174,6 @@ export default function Hero({  }) {
       const userNFTs = [];
 
       nfts?.length === 0 ? setNftLoading(true) : setNftUSerLoading(true);
-      // setNftLoading(true);
-
-      // let sampleData = [
-      //   'https://smmagent.s3.amazonaws.com/chomp/chomp1.json',
-      //   'https://smmagent.s3.amazonaws.com/chomp/chomp2.json',
-      //   'https://smmagent.s3.amazonaws.com/chomp/chomp3.json',
-      // ]
 
       for (let tokenId = 1; tokenId <= lastIdNumber; tokenId++) {
         try {
@@ -186,6 +225,32 @@ export default function Hero({  }) {
       setNfts(nfts);
       setUserNfts(userNFTs);
 
+      // Fetch data from Zora
+      if (zdk) {
+        const args = { 
+          where: {collectionAddresses: [
+            "0x6E3B47A8697Bc62be030827f4927A50Eb3a93d2A",
+            "0x014B6a629D6d8deb6F2CDE20e2D5a99d4A601feC",
+            "0x82262bFba3E25816b4C720F1070A71C7c16A8fc4",
+            // process.env.NEXT_PUBLIC_LEGACIES_ADDRESS,
+              ]
+            },
+            includeFullDetails: false
+          };
+        const zoraResponse = await zdk.collections(args);
+        // Floor price
+        // const args = { 
+        //   where: {collectionAddresses: [
+        //     "0x82262bFba3E25816b4C720F1070A71C7c16A8fc4",
+        //     // process.env.NEXT_PUBLIC_LEGACIES_ADDRESS,
+        //       ]
+        //     },
+        //   };
+        // const zoraResponse = await zdk.floorPrice(args);
+        console.log('=== zoraData in useEffect', zoraResponse);
+        setZoraData(zoraResponse)
+      }
+
       return nfts;
     } catch (error) {
       setNftLoading(false);
@@ -193,7 +258,10 @@ export default function Hero({  }) {
       console.error("Failed to fetch NFT data:", error);
       return null;
     }
-}
+  }
+
+
+ 
 
   useEffect(() => {
     const loadBlockchainData = async () => {
@@ -220,35 +288,14 @@ export default function Hero({  }) {
 
       if (accounts.length > 0) {
         fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
-        // fetchDots(contractInstance, web3, accounts[0])
-        // fetchUserChompBalance(accounts[0], tokenContractInstance, web3)
-        // fetchUserStakedTokens(accounts[0], contractInstance, web3)
         setAccount(accounts[0]);
       } 
 
       let wallet = accounts?.length > 0 ? accounts[0] : null;
-      // console.log('==== wallet in hook', wallet)
       const nftData = await fetchNFTData(legaciesContractInstance, wallet);
-      // console.log('==== nftData', nftData)
-      // setNfts(nftData);
     }
     loadBlockchainData();
   }, []);
-
-
-  const wagmiConfig = createConfig({
-    chains: [baseSepolia],
-    connectors: [
-      coinbaseWallet({
-        appChainIds: [baseSepolia.id],
-        appName: 'onchainkit',
-      }),
-    ],
-    ssr: true,
-    transports: {
-      [baseSepolia.id]: http(),
-    },
-  });
 
   const fetchAllUserTokens = async (wallet, contractInstance, web3, tokenContractInstance) => {
     if (!contractInstance || !web3) return;
@@ -261,7 +308,6 @@ export default function Hero({  }) {
       console.error('Failed to fetch user tokens:', error);
     }
   };
-
 
   const connectWallet = async () => {
     console.log('====== connectWallet starting...');
@@ -522,101 +568,104 @@ export default function Hero({  }) {
     }
   };
 
-  // console.log('===== account', account);
+  console.log('===== account', account);
   console.log('===== userNfts', userNfts);
  
   return (
-    <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={wagmiConfig}>
-        <OnchainKitProvider apiKey="7d-MQxGJf0QXWGSx-GqLQKZDUQP8G74Z">
-          <div className="max-w-[1300px] mainBg mx-auto px-4 relative">
-            {/* <Nav connectWallet={connectWallet} account={account} /> */}
-           
-            {/* <div className="absolute w-[350px] z-0"><BgEllipse/></div> */}
+    <NotFoundErrorBoundary>
+      {/* <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
+            <div className="max-w-[1300px] mainBg mx-auto px-4 relative">
+              {/* <Nav connectWallet={connectWallet} account={account} /> */}
+              {/* <div className="absolute w-[350px] z-0"><BgEllipse/></div> */}
 
-            <div className="pt-[25px] z-10">
-              {/* <ConnectWalletHero connectWallet={connectWallet} account={account} isConnecting={isConnecting} /> */}
-              
-              <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]">
-                <Nav connectWallet={connectWallet} account={account} />
-                <h1 className="font-amiger text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
-                <div className="w-full flex justify-center mt-[30px] mb-[40px]">
-                  {!account ? (
-                    <button
-                      type="submit" 
-                      onClick={connectWallet}
-                      disabled={isConnecting}
-                      className={`w-[285px] text-center py-[12px] px-[25px] text-[19px] leading-[27px] rounded-[9px] opacity-99 font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#F88040] to-[#FD603D] hover:opacity-80 btn__shadow`}
-                    >
-                      Connect Wallet
-                    </button>
-                  ) : (
-                    <div className="">
-                      <Deposit 
-                        isUnlocked={isUnlocked}
-                        isWalletConnected={isWalletConnected}
-                        onStake={onStake}
-                        amount={amount}
-                        handleSubmit={handleSubmit}
-                        register={register}
-                        onApprove={onApprove}
-                        isApproved={isApproved}
-                        loading={loading}
-                        stakeLoading={stakeLoading}
-                        handleMaxClick={handleMaxClick}
-                        balance={userChompBalanceTokens}
-                        userDots={userDots}
-                        setActiveTab={setActiveTab}
-                        activeTab={activeTab}
-                        onWithdraw={onWithdraw}
-                        withdrawLoading={withdrawLoading}
-                        handleWithdrawMaxClick={handleWithdrawMaxClick}
-                        amountWithdraw={amountWithdraw}
-                        userStakedTokens={userStakedTokens} 
-                      />
-                    </div>
+              <div className="pt-[25px] z-10">
+                {/* <ConnectWalletHero connectWallet={connectWallet} account={account} isConnecting={isConnecting} /> */}
+                
+                <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]">
+                  <Nav connectWallet={connectWallet} account={account} />
+                  <h1 className="font-amiger text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
+                  <div className="w-full flex justify-center mt-[30px] mb-[40px]">
+                    {!account ? (
+                      <button
+                        type="submit" 
+                        onClick={connectWallet}
+                        disabled={isConnecting}
+                        className={`w-[285px] text-center py-[12px] px-[25px] text-[19px] leading-[27px] rounded-[9px] opacity-99 font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#F88040] to-[#FD603D] hover:opacity-80 btn__shadow`}
+                      >
+                        Connect Wallet
+                      </button>
+                    ) : (
+                      <div className="">
+                        <Deposit 
+                          isUnlocked={isUnlocked}
+                          isWalletConnected={isWalletConnected}
+                          onStake={onStake}
+                          amount={amount}
+                          handleSubmit={handleSubmit}
+                          register={register}
+                          onApprove={onApprove}
+                          isApproved={isApproved}
+                          loading={loading}
+                          stakeLoading={stakeLoading}
+                          handleMaxClick={handleMaxClick}
+                          balance={userChompBalanceTokens}
+                          userDots={userDots}
+                          setActiveTab={setActiveTab}
+                          activeTab={activeTab}
+                          onWithdraw={onWithdraw}
+                          withdrawLoading={withdrawLoading}
+                          handleWithdrawMaxClick={handleWithdrawMaxClick}
+                          amountWithdraw={amountWithdraw}
+                          userStakedTokens={userStakedTokens} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+                
+              <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
+                <div className="w-full">
+
+                  {/* <ConnectWallet setAccount={setAccount} /> */}
+                  {/* <ConnectAccount /> */}
+
+                  <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
+                  
+                  {activeLegacyTab === 1 && (
+                    <Minting 
+                      nfts={nfts}
+                      onMint={onMint} 
+                      mintLoading={mintLoading} 
+                      txHash={txHash} 
+                      txStatus={txStatus} 
+                      nftLoading={nftLoading}
+                      account={account}
+                    />
                   )}
+
+                  {activeLegacyTab === 2 && (
+                    <Minting 
+                      nfts={userNfts}
+                      onMint={onMint} 
+                      mintLoading={mintLoading} 
+                      txHash={txHash} 
+                      txStatus={txStatus} 
+                      nftLoading={nftUserLoading}
+                      isUserNfts={true}
+                      account={account}
+                    />
+                  )}
+              
                 </div>
               </div>
             </div>
-              
-            <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
-              <div className="w-full">
 
-                {/* <ConnectWallet /> */}
-
-                <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
-                
-                {activeLegacyTab === 1 && (
-                  <Minting 
-                    nfts={nfts}
-                    onMint={onMint} 
-                    mintLoading={mintLoading} 
-                    txHash={txHash} 
-                    txStatus={txStatus} 
-                    nftLoading={nftLoading}
-                    account={account}
-                  />
-                )}
-
-                {activeLegacyTab === 2 && (
-                  <Minting 
-                    nfts={userNfts}
-                    onMint={onMint} 
-                    mintLoading={mintLoading} 
-                    txHash={txHash} 
-                    txStatus={txStatus} 
-                    nftLoading={nftLoading}
-                    isUserNfts={true}
-                    account={account}
-                  />
-                )}
-            
-              </div>
-            </div>
-          </div>
-        </OnchainKitProvider>
-      </WagmiProvider> 
-    </QueryClientProvider>
+          {/* </OnchainKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>  */}
+    </NotFoundErrorBoundary>
   );
 }

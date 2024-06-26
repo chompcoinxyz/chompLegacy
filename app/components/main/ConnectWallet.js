@@ -9,39 +9,36 @@ import { useAccount, useDisconnect } from 'wagmi';
 //   appChainIds: [8453]
 // });
 
-export default function ConnectWallet({ }) {
+export default function ConnectWallet({ setAccount }) {
   const [wallet, setWallet] = useState(null);
-
-  useEffect(() => {
-    console.log('wallet in useeffect', wallet)
-  }, []);
 
   const { address, status } = useAccount();
   const { disconnect } = useDisconnect();
 
+  useEffect(() => {
+    console.log('wallet in useeffect', wallet)
+
+    if (address) {
+      setAccount(address)
+    }
+
+  }, [address]);
 
   console.log('==== status', status)
-  console.log('==== address', address)
+  console.log('==== wallet address', address)
     
   return (
       <div className="flex flex-col w-[200px]">
-        {(() => {
-
-          return (
-            <div className="flex items-center justify-center">
-              {!address ? (
-                <div className="bg-blue-500 mt-4">
-                  <ConnectAccount />
-                </div>
-              ) : (
-                <button type="button" onClick={() => disconnect()}>
-                </button>
-              )}
+        <div className="flex items-center justify-center">
+          {!address ? (
+            <div className="bg-primary mt-4">
+              <ConnectAccount />
             </div>
-          );
-        })()}
-
+          ) : (
+            <button type="button" onClick={() => disconnect()}>
+            </button>
+          )}
+        </div>
       </div>
-    // </WagmiProvider>
   );
 }

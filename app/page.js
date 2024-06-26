@@ -1,9 +1,35 @@
-import Hero from './components/main/Hero'
+import Hero from './components/main/Hero';
+
+import { getFrameMetadata } from '@coinbase/onchainkit/frame';
+
+const frameMetadata = getFrameMetadata({
+  buttons: [
+    {
+      label: 'Learn about CHOMP',
+      action: 'link',
+      target: 'https://www.chompcoin.xyz/',
+    },
+    {
+      label: 'Chomp Legacy',
+      action: 'link',
+      target: 'https://www.chomplegacy.com/',
+    },
+  ],
+  image: `${process.env.NEXT_PUBLIC_URL}/img/og_image3.png`,
+  // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/frame`,
+});
+
+export const metadata = {
+  manifest: '/manifest.json',
+  other: {
+    ...frameMetadata
+  },
+};
 
 export default function Home() {
   return (
     <main className={'bg-bgMain'}>
-       <Hero/ >
+        <Hero/ >
     </main>
   )
 }
