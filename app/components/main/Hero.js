@@ -19,7 +19,7 @@ import Nav from './Nav';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
-import wagmiConfigObj from '../../../config/wagmi';
+import wagmiConfig from '../../../config/wagmi';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
 
 
@@ -240,9 +240,6 @@ export default function Hero({  }) {
     }
   }
 
-
- 
-
   useEffect(() => {
     const loadBlockchainData = async () => {
       const provider = await getProvider(); // This ensures the provider is ready
@@ -375,7 +372,22 @@ export default function Hero({  }) {
     try {
       const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
+      // const requestData = { method: 'approve' };
+      // const response = await fetch('/api/sendTransaction', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(requestData),
+      // });
+      // if (!response.ok) {
+      //   throw new Error('Network response was not ok');
+      // }
+      // const approvalResult = await response.json();
+      // console.log('Transaction successful:', approvalResult);
+
       return approvalResult.status;
+      return true;
     } catch (error) {
       console.error('Approval error:', error);
       alert("Approval failed. See the console for more information.");
@@ -563,7 +575,7 @@ export default function Hero({  }) {
  
   return (
     <NotFoundErrorBoundary>
-      <WagmiProvider config={wagmiConfigObj}>
+      <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           {/* <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
             {/* <div className="max-w-[1300px] mainBg mx-auto px-4 relative"> */}
@@ -575,7 +587,7 @@ export default function Hero({  }) {
                 {/* <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]"> */}
                 <div className="border__main">
                   <div className="border__main__content">
-                    <Nav connectWallet={connectWallet} account={account} />
+                    <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} />
                     <h1 className="font-amiger text-[35px] md:text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
                     <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
                       {!account ? (
