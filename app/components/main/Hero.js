@@ -9,26 +9,20 @@ import ConnectWallet from './ConnectWallet';
 import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { WagmiProvider, createConfig, http, cookieToInitialState } from 'wagmi';
-// import { baseSepolia } from 'wagmi/chains';
-import { baseSepolia } from 'viem/chains';
+import { baseSepolia } from 'wagmi/chains';
+// import { baseSepolia } from 'viem/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
-// import BgEllipse from '../elems/BgEllipse';
 import LegacyTabs from '../elems/LegacyTabs';
-import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary'
-
+import StakeButton from '../elems/StakeButton';
+import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
+import wagmiConfigObj from '../../../config/wagmi';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
 
 
-// import ConnectWalletHero from './ConnectWalletHero';
-
-// import Cookies from 'js-cookie'; 
-// import { config } from '../../../config/index';
-// import { config as web3ModalConfig } from '../../../config/index';
-// import Web3ModalProvider from '../../../context/index';
 
 const queryClient = new QueryClient();
 
@@ -53,34 +47,19 @@ export default function Hero({  }) {
   const [tokenContract, setTokenContract] = useState(null);
   const [legaciesContract, setLegaciesContract] = useState(null);
 
-  // const [initialState, setInitialState] = useState(null);
-  // const [initialState, setInitialState] = useState(config);
-  // useEffect(() => {
-  //   const cookie = Cookies.get('cookie'); // Get the cookie
-  //   if (cookie) {
-  //     const initialState = cookieToInitialState(config, cookie);
-  //     setInitialState(initialState);
-  //   } else {
-  //     const initialState = cookieToInitialState(config);
-  //     setInitialState(initialState);
-  //   }
-  // }, []);
-  // console.log('===== config', config)
-  // console.log('===== initialState', initialState)
-
-  const wagmiConfig = createConfig({
-    chains: [baseSepolia],
-    connectors: [
-      coinbaseWallet({
-        appChainIds: [baseSepolia.id],
-        appName: 'CHOMP',
-      }),
-    ],
-    ssr: true,
-    transports: {
-      [baseSepolia.id]: http(),
-    },
-  });
+  // const wagmiConfig = createConfig({
+  //   chains: [baseSepolia],
+  //   connectors: [
+  //     coinbaseWallet({
+  //       appChainIds: [baseSepolia.id],
+  //       appName: 'CHOMP',
+  //     }),
+  //   ],
+  //   ssr: true,
+  //   transports: {
+  //     [baseSepolia.id]: http(),
+  //   },
+  // });
 
   async function getProvider() {
     // console.log("========= window.ethereum in getProvider", window.ethereum);
@@ -114,6 +93,7 @@ export default function Hero({  }) {
   const [txStatus, setTxStatus] = useState('');
   const [nftLoading, setNftLoading] = useState(false);
   const [nftUserLoading, setNftUSerLoading] = useState(false);
+  const [mintIndex, setMintIndex] = useState(99);
 
   const [zoraData, setZoraData] = useState(false);
   const networkInfo = {
@@ -535,7 +515,7 @@ export default function Hero({  }) {
   };
 
 
-  const onMint = async (tokenId, quantity) => {
+  const onMint = async (tokenId, quantity, index) => {
     if (!account || !contract) {
       alert("Please connect your wallet and ensure the contract is loaded.");
       return setMintLoading(false);
@@ -543,6 +523,8 @@ export default function Hero({  }) {
 
     try {
         setMintLoading(true);
+        setMintIndex(index);
+        console.log('=== index onMint for mintindex', index)
         
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
         console.log('=== ethPrice onMint', ethPrice)
@@ -559,7 +541,15 @@ export default function Hero({  }) {
         
         setTxHash(txResponse.transactionHash);
 
+        if (txResponse && txResponse.status) {
+          console.log('Minting was successful:', txResponse.transactionHash);
+
+          setActiveLegacyTab(2);
+          alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
+        } 
+
         setMintLoading(false)
+        setMintIndex(99)
         return console.log('NFT minted successfully!');
     } catch (error) {
         console.error("Error on mint:", error);
@@ -573,55 +563,59 @@ export default function Hero({  }) {
  
   return (
     <NotFoundErrorBoundary>
-      {/* <WagmiProvider config={wagmiConfig}>
+      <WagmiProvider config={wagmiConfigObj}>
         <QueryClientProvider client={queryClient}>
-          <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
-            <div className="max-w-[1300px] mainBg mx-auto px-4 relative">
-              {/* <Nav connectWallet={connectWallet} account={account} /> */}
-              {/* <div className="absolute w-[350px] z-0"><BgEllipse/></div> */}
+          {/* <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
+            {/* <div className="max-w-[1300px] mainBg mx-auto px-4 relative"> */}
+            <div className="max-w-[1300px] mx-auto px-4 relative">
 
               <div className="pt-[25px] z-10">
                 {/* <ConnectWalletHero connectWallet={connectWallet} account={account} isConnecting={isConnecting} /> */}
                 
-                <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]">
-                  <Nav connectWallet={connectWallet} account={account} />
-                  <h1 className="font-amiger text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
-                  <div className="w-full flex justify-center mt-[30px] mb-[40px]">
-                    {!account ? (
-                      <button
-                        type="submit" 
-                        onClick={connectWallet}
-                        disabled={isConnecting}
-                        className={`w-[285px] text-center py-[12px] px-[25px] text-[19px] leading-[27px] rounded-[9px] opacity-99 font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#F88040] to-[#FD603D] hover:opacity-80 btn__shadow`}
-                      >
-                        Connect Wallet
-                      </button>
-                    ) : (
-                      <div className="">
-                        <Deposit 
-                          isUnlocked={isUnlocked}
-                          isWalletConnected={isWalletConnected}
-                          onStake={onStake}
-                          amount={amount}
-                          handleSubmit={handleSubmit}
-                          register={register}
-                          onApprove={onApprove}
-                          isApproved={isApproved}
-                          loading={loading}
-                          stakeLoading={stakeLoading}
-                          handleMaxClick={handleMaxClick}
-                          balance={userChompBalanceTokens}
-                          userDots={userDots}
-                          setActiveTab={setActiveTab}
-                          activeTab={activeTab}
-                          onWithdraw={onWithdraw}
-                          withdrawLoading={withdrawLoading}
-                          handleWithdrawMaxClick={handleWithdrawMaxClick}
-                          amountWithdraw={amountWithdraw}
-                          userStakedTokens={userStakedTokens} 
-                        />
-                      </div>
-                    )}
+                {/* <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]"> */}
+                <div className="border__main">
+                  <div className="border__main__content">
+                    <Nav connectWallet={connectWallet} account={account} />
+                    <h1 className="font-amiger text-[35px] md:text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
+                    <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
+                      {!account ? (
+                        <div className="w-[300px]">
+                          <StakeButton 
+                            onClick={connectWallet}
+                            disabled={isConnecting}
+                            loading={loading}
+                            text="Connect Wallet"
+                            isDisabledStyles={''}
+                          />
+                        </div>
+                        
+                      ) : (
+                        <div className="">
+                          <Deposit 
+                            isUnlocked={isUnlocked}
+                            isWalletConnected={isWalletConnected}
+                            onStake={onStake}
+                            amount={amount}
+                            handleSubmit={handleSubmit}
+                            register={register}
+                            onApprove={onApprove}
+                            isApproved={isApproved}
+                            loading={loading}
+                            stakeLoading={stakeLoading}
+                            handleMaxClick={handleMaxClick}
+                            balance={userChompBalanceTokens}
+                            userDots={userDots}
+                            setActiveTab={setActiveTab}
+                            activeTab={activeTab}
+                            onWithdraw={onWithdraw}
+                            withdrawLoading={withdrawLoading}
+                            handleWithdrawMaxClick={handleWithdrawMaxClick}
+                            amountWithdraw={amountWithdraw}
+                            userStakedTokens={userStakedTokens} 
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -643,6 +637,7 @@ export default function Hero({  }) {
                       txStatus={txStatus} 
                       nftLoading={nftLoading}
                       account={account}
+                      mintIndex={mintIndex}
                     />
                   )}
 
@@ -656,6 +651,7 @@ export default function Hero({  }) {
                       nftLoading={nftUserLoading}
                       isUserNfts={true}
                       account={account}
+                      mintIndex={mintIndex}
                     />
                   )}
               
@@ -663,9 +659,9 @@ export default function Hero({  }) {
               </div>
             </div>
 
-          {/* </OnchainKitProvider>
+          {/* </OnchainKitProvider> */}
         </QueryClientProvider>
-      </WagmiProvider>  */}
+      </WagmiProvider> 
     </NotFoundErrorBoundary>
   );
 }

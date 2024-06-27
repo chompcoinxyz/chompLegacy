@@ -51,7 +51,7 @@ data-testid[ockConnectAccountButtonInner] {
   position: relative;
   width: 100%;
   height: 100vh;
-  background-color: #202037; 
+  background-color: #0A0940; 
 }
 
 .mainBg::before {
@@ -68,7 +68,7 @@ data-testid[ockConnectAccountButtonInner] {
   position: relative;
   width: 100%;
   height: 100vh;
-  background-color: #202037; 
+  background-color: #0A0940; 
 }
 
 .mainBg2::before {
@@ -88,4 +88,97 @@ data-testid[ockConnectAccountButtonInner] {
 
 .title__shadow {
   text-shadow: 3px 3px 0px 0px #000000;
+}
+
+.border__main {
+  padding: 1rem;
+  position: relative;
+  background: linear-gradient(103.16deg, #FDC83A -0.25%, #FDECBA 39.87%, #FDC83A 100.04%);
+  padding: 1.5px;
+  border-radius: 20px;
+}
+
+.border__main__content {
+  background: #0A0940;
+  padding: 27px 50px;
+  border-radius: 20px;
+}
+
+.border__button {
+  position: relative;
+  background: radial-gradient(60.71% 50% at 50% 50%, #D27D08 71.13%, rgba(255, 203, 60, 0.85) 100%);
+  padding: 4px;
+  border-radius: 11px;
+}
+
+
+.border__button__content {
+  background: linear-gradient(95.47deg, #DA8207 -0.22%, #DD9318 10.66%, #FFCB3C 26.65%, #FFCB3C 78.95%, #E39C1E 93%, #FBC63A 97.24%);
+  padding: 25px 50px;
+  border-radius: 11px;
+  border: 1.5px solid #F2D56B96;
+  transition: filter 0.3s ease;
+}
+.border__button__content:hover {
+  filter: brightness(80%); 
+}
+
+.border__button__text {
+  color: #945909; /* Solid text color */
+  font-size: 20px;
+  font-weight: bold;
+  position: relative;
+  background: none;
+  -webkit-background-clip: text;
+  display: inline-block;
+  text-shadow:
+  1px 0 0 #FDECBA, 0 1px 0 #FDECBA, -1px 0 0 #FDECBA, 0 -1px 0 #fbe5a1,
+  1px 1px #FDECBA, -1px -1px 0 #FDECBA, 1px -1px 0 #FDECBA, -1px 1px 0 #FDECBA;
+}
+
+.border__card {
+  padding: 20px;
+  position: relative;
+  background: linear-gradient(201.6deg, #FFCB3C 1.48%, #FDECBA 59.16%, #FFCB3C 98.42%);
+  padding: 1px;
+  border-radius: 19px;
+}
+
+.border__card__content {
+  background: #000;
+  padding: 22px 22px 28px 22px;
+  border-radius: 19px;
+}
+
+.shadow__gradient {
+  position: relative;
+  overflow: hidden;  /* Ensures the pseudo-element does not extend outside the box */
+  margin: 50px;
+  z-index: 1000;
+  opacity: 1;
+  box-shadow: 0px -20px 75px 40px rgba(255, 212, 62, 0.2);
+}
+
+/* .shadow__gradient::before {
+  content: "";
+  position: absolute;
+  top: 0px; 
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 212, 62, 0.37) 91.5%, rgba(9, 10, 64, 0.37) 100%);
+  z-index: -1;
+  filter: blur(8px); 
+  border-radius: 10px;
+  z-index: 1;
+} */
+
+
+@media (max-width: 768px) {
+  .shadow__gradient {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-top: 40px
+  }
 }

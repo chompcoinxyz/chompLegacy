@@ -1,14 +1,20 @@
 import React from 'react';
 import Image from 'next/image';
-import EthIcon from '../elems/EthIcon';
-import DotsIcon from '../elems/DotsIcon';
+import EthIcon from './EthIcon';
+import LoadingIcon from './Loading';
+import DotsIcon from './DotsIcon';
 
-export default function NftCard({ nft, mintLoading, onMint, isUserNfts }) {
+export default function NftCard({ nft, mintLoading, onMint, isUserNfts, mintIndex, index }) {
 
   const formattedDots = parseFloat(nft.dotsPrice).toLocaleString('en-US');
 
+  console.log('===== mintIndex', mintIndex)
+  console.log('===== index', index)
+
   return (
-    <div key={nft.tokenId} className="w-full flex bg-black shadow rounded-[19px] p-[20px] border border-white flex-col items-center">
+    // <div key={nft.tokenId} className="w-full flex bg-black shadow rounded-[19px] p-[20px] border border-primary flex-col items-center">
+    <div key={nft.tokenId} className="border__card w-full  bg-black shadow flex flex-col items-center">
+      <div className="border__card__content">
       <div className="h-[443px] w-full overflow-hidden rounded-[10px]">
         <Image 
           src={nft.image}
@@ -21,13 +27,13 @@ export default function NftCard({ nft, mintLoading, onMint, isUserNfts }) {
       {!isUserNfts ? (
         <>
           <div className="w-full flex flex-row items-start justify-between my-[19px]">
-            <div className="w-1/2 flex flex-col justify-start">
+            <div className="w-[45%] flex flex-col justify-start">
               <p className="text-[17px] font-bold text-white text-left mb-[7px]">{nft.name}</p>
               <p className="text-[14px] text-white text-left">{nft.maxIssuance} supply</p>
             </div>
-            <div className="w-1/2 flex flex-col justify-end">
+            <div className="w-[55%] flex flex-col justify-end">
               <div className="flex flex-row items-center justify-end mb-[7px]">
-                <p className="text-[17px] ml-1 mr-2 font-medium text-primary text-right flex flex-row items-center"><span className='mr-2'><DotsIcon/></span> {formattedDots} DOTS</p>
+                <p className="text-[17px] ml-1 mr-2 font-medium text-orange text-right flex flex-row items-center"><span className='mr-2'><DotsIcon/></span> {formattedDots} DOTS</p>
                 <EthIcon/>
                 <p className="text-[17px] font-medium text-white text-right">{nft.ethPrice}</p>
               </div>
@@ -35,19 +41,37 @@ export default function NftCard({ nft, mintLoading, onMint, isUserNfts }) {
             </div>
           </div>
           
-          <button 
-            onClick={() => onMint(nft.tokenId, 1)} 
-            disabled={nft.maxIssuance === nft.totalSupply ? true : false} 
-            className={`w-full h-[45px] text-[17px] mb-[8px] flex flex-row items-center justify-center font-bold px-6 text-white rounded-[10px] uppercase ${!mintLoading || nft.maxIssuance === nft.totalSupply ? 'bg-gradient-to-r from-[#F88040] to-[#FD603D] hover:opacity-80' : 'bg-btnDisabled text-white'}`}
-          >
-            {!mintLoading && nft.maxIssuance > nft.totalSupply ? 'Mint' : nft.maxIssuance === nft.totalSupply ? 'Sold Out' : 'Pending...'}
-          </button> 
+          <div className={`${nft.maxIssuance !== nft.totalSupply ? 'border__button' : ''} w-full text-[17px]`}>
+            <button 
+              onClick={() => onMint(nft.tokenId, 1, index)} 
+              disabled={nft.maxIssuance === nft.totalSupply ? true : false} 
+              className={`w-full h-[50px] text-[17px] shadow-xl flex flex-row items-center justify-center font-bold text-white uppercase ${nft.maxIssuance === nft.totalSupply ? 'bg-btnDisabled text-white' : 'border__button__content'}`}
+            >
+              <div className={`${!mintLoading || nft.maxIssuance === nft.totalSupply ? 'border__button__text' : 'flex flex-row items-center'}`}>
+                {/* {!mintLoading && nft.maxIssuance > nft.totalSupply && mintIndex !== index ? 'Mint' : nft.maxIssuance === nft.totalSupply ? 'Sold Out' : (
+                  <>
+                    <LoadingIcon className="mr-2 h-8 w-8 animate-spin" color="text-primary" />
+                    Pending...
+                  </>
+                  )} */}
+
+                  {nft.maxIssuance === nft.totalSupply ? 'Sold Out' : mintLoading && mintIndex === index ?
+                   (
+                    <>
+                      <LoadingIcon className="mr-2 h-8 w-8 animate-spin" color="text-white" />
+                      Pending...
+                    </>
+                  ) : 'Mint'}
+              </div>
+            </button> 
+          </div>
         </>
       ) : (
         <div className="w-full flex flex-row items-start justify-center mt-[19px] mb-[8px]">
           <p className="text-[17px] font-bold text-white text-left">{nft.name}</p>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -9,7 +9,8 @@ export default function Minting({
   txHash,
   nftLoading,
   isUserNfts,
-  account
+  account,
+  mintIndex
 }) {
   
   console.log('==== isUserNfts', isUserNfts)
@@ -22,19 +23,21 @@ export default function Minting({
           <LoadingIcon className="h-12 w-12 animate-spin" color="text-primary" />
         ) : (
           <>
-            {txHash?.length > 0 && (
+            {/* {txHash?.length > 0 && (
               <div>
                   {txHash && <p>Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className='text-blue-600 hover:text-blue-500'>{txHash}</a></p>}
               </div>
-            )}
+            )} */}
             <div className="w-full flex flex-wrap justify-center items-start">
-              {nfts?.length > 0 && nfts.map((nft) => (
-                <div key={nft.tokenId} className="w-1/3 p-4">
+              {nfts?.length > 0 && nfts.map((nft, index) => (
+                <div key={nft.tokenId} className="w-full sm:w-1/3 p-4">
                   <NftCard 
                     nft={nft} 
                     onMint={onMint} 
                     mintLoading={mintLoading} 
                     isUserNfts={isUserNfts}
+                    mintIndex={mintIndex}
+                    index={index}
                   />
                 </div>
               ))}

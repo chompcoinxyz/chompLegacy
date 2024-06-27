@@ -15,7 +15,7 @@ const frameMetadata = getFrameMetadata({
       target: 'https://www.chomplegacy.com/',
     },
   ],
-  image: `${process.env.NEXT_PUBLIC_URL}/img/og_image3.png`,
+  image: `${process.env.NEXT_PUBLIC_URL}/img/og_image.png`,
   // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/frame`,
 });
 

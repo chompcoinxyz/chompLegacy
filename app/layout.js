@@ -2,7 +2,7 @@ import './globals.css';
 
 export const metadata = {
   title: 'CHOMP Legacy',
-  description: 'CHOMP Legacy',
+  description: 'Mint Chomp Legacy NFTs by Staking Chomp',
   icons: {
     icon: '/favicon.ico',
   },
@@ -11,7 +11,7 @@ export const metadata = {
     description: 'Mint Chomp Legacy NFTs by Staking Chomp',
     type: 'website',
     url: process.env.NEXT_PUBLIC_URL,
-    images: [`${process.env.NEXT_PUBLIC_URL}/img/og_image3.png`], 
+    images: [`${process.env.NEXT_PUBLIC_URL}/img/og_image.png`], 
     site_name: "CHOMP Legacy",
   },
   other: {},
