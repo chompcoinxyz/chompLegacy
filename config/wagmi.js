@@ -10,12 +10,14 @@ const wagmiConfig = createConfig({
   connectors: [
     coinbaseWallet({
       appChainIds: [chain.id],
-      appName: 'CHOMP',
+      appName: 'CHOMP Legacy',
+      // preference: 'smartWalletOnly' 
     }),
   ],
   ssr: true,
   transports: {
-    [chain.id]: http(),
+    // [chain.id]: http(),
+    [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
 });
 

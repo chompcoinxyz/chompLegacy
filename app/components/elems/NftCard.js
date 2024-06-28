@@ -8,9 +8,6 @@ export default function NftCard({ nft, mintLoading, onMint, isUserNfts, mintInde
 
   const formattedDots = parseFloat(nft.dotsPrice).toLocaleString('en-US');
 
-  console.log('===== mintIndex', mintIndex)
-  console.log('===== index', index)
-
   return (
     // <div key={nft.tokenId} className="w-full flex bg-black shadow rounded-[19px] p-[20px] border border-primary flex-col items-center">
     <div key={nft.tokenId} className="border__card w-full  bg-black shadow flex flex-col items-center">

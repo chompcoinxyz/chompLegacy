@@ -148,10 +148,10 @@ export default function CreateNft() {
   // console.log('==== metadata', metadata)
   return (
     <NotFoundErrorBoundary>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+      {/* <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}> */}
         <main className='max-w-[1300px] mx-auto pb-20 pt-6'>
-          <Nav connectWallet={connectWallet} account={account} />
+          <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} setWeb3={setWeb3} />
 
           <div className="mt-12">
             <h2 className="max-w-[500px] text-white font-bold text-xl mx-auto mb-2">Step 0: Connect wallet</h2>
@@ -215,8 +215,8 @@ export default function CreateNft() {
             </div>
           )}
         </main>
-        </QueryClientProvider>
-      </WagmiProvider>
+        {/* </QueryClientProvider>
+      </WagmiProvider> */}
     </NotFoundErrorBoundary>
   )
 }

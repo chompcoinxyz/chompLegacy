@@ -8,7 +8,7 @@ import MockChompCoinABI from '../../../abis/MockChompCoinABI.json';
 import ConnectWallet from './ConnectWallet';
 import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { WagmiProvider, createConfig, http, cookieToInitialState } from 'wagmi';
+import { WagmiProvider, createConfig, http, cookieToInitialState, useConnect, useClient, useAccount, useProvider, useReadContract, useReadContracts } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 // import { baseSepolia } from 'viem/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
@@ -22,7 +22,14 @@ import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import wagmiConfig from '../../../config/wagmi';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
 
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+const sdk = new CoinbaseWalletSDK({
+  appName: 'CHOMP Legacy',
+  appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
+  appChainIds: [84532],
+});
 
+const cbProvider = sdk.makeWeb3Provider();
 
 const queryClient = new QueryClient();
 
@@ -32,7 +39,7 @@ const legaciesAddress = process.env.NEXT_PUBLIC_LEGACIES_ADDRESS;
 
 const bg = '../../../public/img/bg_ellipse.svg'
 
-export default function Hero({  }) {
+export default function Hero() {
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
       amount: 0
@@ -41,25 +48,20 @@ export default function Hero({  }) {
   const amount = watch('amount');
   const amountWithdraw = watch('amountWithdraw');
 
+  // const router = useRouter();
+  const { address } = useAccount()
+  const client = useClient()
+  const { connectors, connect, data } = useConnect();
+  const connector = connectors[0];
+  console.log("========= address", address);
+  console.log("========= client", client);
+  console.log("========= connectors", connectors);
+
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [contract, setContract] = useState(null);
   const [tokenContract, setTokenContract] = useState(null);
   const [legaciesContract, setLegaciesContract] = useState(null);
-
-  // const wagmiConfig = createConfig({
-  //   chains: [baseSepolia],
-  //   connectors: [
-  //     coinbaseWallet({
-  //       appChainIds: [baseSepolia.id],
-  //       appName: 'CHOMP',
-  //     }),
-  //   ],
-  //   ssr: true,
-  //   transports: {
-  //     [baseSepolia.id]: http(),
-  //   },
-  // });
 
   async function getProvider() {
     // console.log("========= window.ethereum in getProvider", window.ethereum);
@@ -240,14 +242,65 @@ export default function Hero({  }) {
     }
   }
 
+  // const wagmiContractConfig = {
+  //   address: legaciesAddress,
+  //   abi: LegaciesABI,
+  // };
+  // const { data: lastID } = useReadContract({
+  //   ...wagmiContractConfig,
+  //   functionName: 'lastID',
+  //   args:[]
+  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+  // })
+
+  // const { data: totalSupply } = useReadContract({
+  //   ...wagmiContractConfig,
+  //   functionName: 'totalSupply',
+  //   args:[4]
+  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+  // })
+
+  // const { data: maxIssuance } = useReadContract({
+  //   ...wagmiContractConfig,
+  //   functionName: 'maxIssuance',
+  //   args:[4]
+  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+  // })
+  // const { data: uri } = useReadContract({
+  //   ...wagmiContractConfig,
+  //   functionName: 'uri',
+  //   args:[4]
+  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+  // })
+  // // const [totalStaked, ownerOf, totalSupply] = data || [] 
+  // // const [totalStaked] = data || [] 
+
+  // console.log('======= lastID fetchWagmiData', lastID)
+  // console.log('======= lastID fetchWagmiData', Number(lastID))
+  // console.log('======= totalSupply fetchWagmiData', totalSupply)
+  // console.log('======= totalSupply fetchWagmiData', Number(totalSupply))
+  // console.log('======= maxIssuance fetchWagmiData', maxIssuance)
+  // console.log('======= uri fetchWagmiData', uri)
+
+  console.log('==== web3', web3)
+  console.log('==== web3.currentProvider', web3?.currentProvider)
   useEffect(() => {
     const loadBlockchainData = async () => {
-      const provider = await getProvider(); // This ensures the provider is ready
-      if (!provider) return; // Early exit if no provider
+      // const provider = await getProvider(); // This ensures the provider is ready
+      // if (!provider) return; // Early exit if no provider
+      // console.log('==== provider in useffect', provider)
+
+      // console.log("========= connector in useeffect", connector);
+      //  const provider = await connector.getProvider();
+      // console.log("========= provider", provider);
       
+      // const web3 = new Web3(provider);
       const web3 = new Web3(window.ethereum);
-      // console.log("======= WEB3 in USEEFFECT:", web3);
+      // const web3 = new Web3(cbProvider);
+      // const web3 = new Web3(rpc);
       setWeb3(web3);
+      console.log("======= address in USEEFFECT:", address);
+      console.log("======= WEB3 in USEEFFECT:", web3);
 
       const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
       setContract(contractInstance);
@@ -261,6 +314,7 @@ export default function Hero({  }) {
       const staked = await fetchTotalStaked(contractInstance, web3);
 
       const accounts = await web3.eth.getAccounts();
+      // const accounts = [address];
       console.log("======= accounts in USEEFFECT:", accounts);
 
       if (accounts.length > 0) {
@@ -273,6 +327,16 @@ export default function Hero({  }) {
     }
     loadBlockchainData();
   }, []);
+
+
+
+  const updateProvider = async (connector) => {
+    // window.ethereum.disconnect();
+    const provider = await connector.getProvider();
+    console.log(' ==== connector in updateProvider', connector)
+    const web3Instance = new Web3(provider);
+    setWeb3(web3Instance);
+  };
 
   const fetchAllUserTokens = async (wallet, contractInstance, web3, tokenContractInstance) => {
     if (!contractInstance || !web3) return;
@@ -289,7 +353,16 @@ export default function Hero({  }) {
   const connectWallet = async () => {
     console.log('====== connectWallet starting...');
     if (window.ethereum && window.ethereum.isMetaMask) {
+    // if (window.ethereum) {
       setIsConnecting(true);
+
+      // // change provider
+      // const provider = await getProvider(); 
+      // console.log('==== provider in connectWallet', provider)
+      
+      // const web3 = new Web3(provider);
+      // setWeb3(web3);
+
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         console.log('====== accounts in connectWallet', accounts);
@@ -397,6 +470,7 @@ export default function Hero({  }) {
   }
 
   const onApprove = async () => {
+    console.log("== onApprove: Provider being used:", web3.currentProvider);
     console.log('===== onApprove: account', account)
     // Ensure account is connected, wait for connectWallet if account is not set
     const effectiveAccount = account || await connectWallet();
@@ -575,19 +649,17 @@ export default function Hero({  }) {
  
   return (
     <NotFoundErrorBoundary>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+      {/* <WagmiProvider config={wagmiConfig}> */}
+        {/* <QueryClientProvider client={queryClient}> */}
           {/* <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
-            {/* <div className="max-w-[1300px] mainBg mx-auto px-4 relative"> */}
             <div className="max-w-[1300px] mx-auto px-4 relative">
 
               <div className="pt-[25px] z-10">
-                {/* <ConnectWalletHero connectWallet={connectWallet} account={account} isConnecting={isConnecting} /> */}
                 
                 {/* <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]"> */}
                 <div className="border__main">
                   <div className="border__main__content">
-                    <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} />
+                    <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} setWeb3={setWeb3} updateProvider={updateProvider} />
                     <h1 className="font-amiger text-[35px] md:text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
                     <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
                       {!account ? (
@@ -636,7 +708,6 @@ export default function Hero({  }) {
                 <div className="w-full">
 
                   {/* <ConnectWallet setAccount={setAccount} /> */}
-                  {/* <ConnectAccount /> */}
 
                   <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
                   
@@ -672,8 +743,8 @@ export default function Hero({  }) {
             </div>
 
           {/* </OnchainKitProvider> */}
-        </QueryClientProvider>
-      </WagmiProvider> 
+        {/* </QueryClientProvider> */}
+      {/* </WagmiProvider>  */}
     </NotFoundErrorBoundary>
   );
 }

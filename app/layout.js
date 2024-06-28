@@ -1,4 +1,5 @@
 import './globals.css';
+import OnchainProviders from './components/providers/OnchainProviders';
 
 export const metadata = {
   title: 'CHOMP Legacy',
@@ -19,8 +20,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    // <html lang="en" className={'bg-bgMain'}>
+    //   <body>{children}</body>
+    // </html>
     <html lang="en" className={'bg-bgMain'}>
-      <body>{children}</body>
+      <body>
+        <OnchainProviders>{children}</OnchainProviders>
+      </body>
     </html>
   )
 }

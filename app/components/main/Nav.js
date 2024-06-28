@@ -7,7 +7,7 @@ import Line from '../elems/Line';
 import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 
-export default function Nav({ connectWallet, account, setAccount }) {
+export default function Nav({ connectWallet, account, setAccount, setWeb3, updateProvider }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    
@@ -35,7 +35,7 @@ export default function Nav({ connectWallet, account, setAccount }) {
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"></path></svg>
           </button>
           <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-col lg:hidden absolute top-[100px] right-0 rounded shadow-xl mx-auto p-4 bg-white z-20`} id="mobile-menu">
-              <div className="mb-4 text-center"><CoinbaseCreateWalletButton setAccount={setAccount}  /></div>
+              <div className="mb-4 text-center"><CoinbaseCreateWalletButton setAccount={setAccount} setWeb3={setWeb3} updateProvider={updateProvider} /></div>
               {!account ? (
                   <MetamaskMobile/>
               ) : (
@@ -70,7 +70,7 @@ export default function Nav({ connectWallet, account, setAccount }) {
               )}
           </div>
 
-          <div className="mr-4"><CoinbaseCreateWalletButton setAccount={setAccount} /></div>
+          <div className="mr-4"><CoinbaseCreateWalletButton setAccount={setAccount} setWeb3={setWeb3} updateProvider={updateProvider} /></div>
 
             {!account ? (
               <button
