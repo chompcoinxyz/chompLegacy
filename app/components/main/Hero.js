@@ -8,7 +8,12 @@ import MockChompCoinABI from '../../../abis/MockChompCoinABI.json';
 import ConnectWallet from './ConnectWallet';
 import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { WagmiProvider, createConfig, http, cookieToInitialState, useConnect, useWaitForTransactionReceipt, useClient, useAccount, useWriteContract, useReadContract, useReadContracts } from 'wagmi';
+import { 
+  useConnect, useWaitForTransactionReceipt, 
+  useClient, useAccount, 
+  useWriteContract, useReadContract, 
+  useReadContracts, 
+} from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 // import { baseSepolia } from 'viem/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
@@ -18,6 +23,7 @@ import Deposit from './Deposit';
 import Nav from './Nav';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
+import MetamaskMobile from '../elems/MetamaskMobile';
 import Footer from '../elems/Footer';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import wagmiConfig from '../../../config/wagmi';
@@ -56,7 +62,7 @@ export default function Hero() {
   const client = useClient()
   const { connectors, connect, data } = useConnect();
   const connector = connectors[0];
-  const { data: hash, writeContract, isPending } = useWriteContract()
+  const { data: hash, writeContract, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } =
     useWaitForTransactionReceipt({
       hash,
@@ -428,19 +434,16 @@ export default function Hero() {
     loadBlockchainData();
   }, [address]);
 
-  // useEffect(() => {
-  //   console.log("======= address in USEEFFECT 2:", address);
-  //   if (!address) return
-  //   console.log("======= address.length > 0 && address !== account in USEEFFECT 2:", address.length > 0 && address !== account);
-  //   console.log("======= contract in USEEFFECT 2:", contract);
-  //   console.log("======= tokenContract in USEEFFECT 2:", tokenContract);
-  //   console.log("======= web3 in USEEFFECT 2:", web3);
+  useEffect(() => {
+    // console.log("======= account in USEEFFECT 2:", account);
+    if (!account || !contract || !web3 || !tokenContract) return
+    console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
 
-  //   if (address.length > 0 && address !== account) {
-  //     fetchAllUserTokens(address, contract, web3, tokenContract);
-  //     setAccount(address);
-  //   } 
-  // }, [address]);
+    if (isSuccess) {
+      fetchAllUserTokens(account, contract, web3, tokenContract);
+      fetchUserChompBalance(account, tokenContract, web3)
+    }
+  }, [isSuccess]);
 
   const updateProvider = async (connector) => {
     // window.ethereum.disconnect();
@@ -555,7 +558,7 @@ export default function Hero() {
         functionName: 'approve',
         // args: [BigInt(tokenId)],
         args: [chompLegacyAddress, amountInWei],
-        meta: "Approving Chomp staking"
+        placeholderData: "Approving Chomp staking"
       })
 
       console.log('==== hash in ensureTokenApproval', hash)
@@ -685,10 +688,8 @@ export default function Hero() {
       // console.log('Transaction successful:', approvalResult);
 
 
-      console.log('==== hash', hash)
-
       // Update total staked tokens and user staked tokens
-      await fetchUserStakedTokens(effectiveAccount, contract, web3);
+      // await fetchUserStakedTokens(effectiveAccount, contract, web3);
 
       // await fetchTotalStaked();
 
@@ -728,6 +729,12 @@ export default function Hero() {
           args: [amount],
         })
 
+        // console.log('onWithdraw: isPending:',isPending);
+        // console.log('onWithdraw: error:',error);
+        // console.log('onWithdraw: isConfirming:',isConfirming);
+        // console.log('onWithdraw: isSuccess:',isSuccess);
+
+
         // const requestData = { functionName: 'withdraw' };
         // const response = await fetch('/api/sendTransaction', {
         //   method: 'POST',
@@ -747,11 +754,10 @@ export default function Hero() {
         // alert("Unstake successful! Your tokens have been returned to your wallet.");
 
         // Update UI - fetch latest total staked tokens and user-specific staked tokens
-        // await fetchTotalStaked();
-        await fetchUserStakedTokens(account, contract, web3);
+        // await fetchUserStakedTokens(account, contract, web3);
        
         setWithdrawLoading(false)
-        fetchUserChompBalance(account, tokenContract, web3)
+        // fetchUserChompBalance(account, tokenContract, web3)
 
         reset({ amountWithdraw: '' });
     } catch (error) {
@@ -760,6 +766,10 @@ export default function Hero() {
         setWithdrawLoading(false)
     }
   };
+  // console.log('after onWithdraw: isPending:',isPending);
+  // console.log('after onWithdraw: error:',error);
+  // console.log('after onWithdraw: isConfirming:',isConfirming);
+  // console.log('after onWithdraw: isSuccess:',isSuccess);
 
 
   const onMint = async (tokenId, quantity, index) => {
@@ -838,7 +848,7 @@ export default function Hero() {
   };
 
   console.log('===== account', account);
-  console.log('===== userNfts', userNfts);
+  // console.log('===== userNfts', userNfts);
  
   return (
     <NotFoundErrorBoundary>
@@ -850,15 +860,20 @@ export default function Hero() {
               <h1 className="font-amiger text-[35px] md:text-[55px] pt-[5px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
               <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
                 {!account ? (
-                  <div className="w-[300px]">
-                    <StakeButton 
-                      onClick={connectWallet}
-                      disabled={isConnecting}
-                      loading={loading}
-                      text="Connect Wallet"
-                      isDisabledStyles={''}
-                    />
-                  </div>
+                  <>
+                    <div className="w-[300px] hidden sm:block">
+                      <StakeButton 
+                        onClick={connectWallet}
+                        disabled={isConnecting}
+                        loading={loading}
+                        text="Connect Wallet"
+                        isDisabledStyles={''}
+                      />
+                    </div>
+                    <div className="w-[300px] block sm:hidden">
+                      <MetamaskMobile/>
+                    </div>
+                  </>
                 ) : (
                   <div className="">
                     <Deposit 

@@ -5,6 +5,7 @@ const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
 
 const wagmiConfig = createConfig({
   chains: [chain],
+  // chains: [base, baseSepolia],
   connectors: [
     coinbaseWallet({
       appChainIds: [chain.id],
@@ -16,6 +17,8 @@ const wagmiConfig = createConfig({
   transports: {
     // [chain.id]: http(),
     [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    // [base.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    // [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
 });
 

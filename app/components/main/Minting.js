@@ -6,15 +6,14 @@ export default function Minting({
   nfts,
   onMint,
   mintLoading,
-  txHash,
   nftLoading,
   isUserNfts,
   account,
   mintIndex
 }) {
   
-  console.log('==== isUserNfts', isUserNfts)
-  console.log('==== nfts', nfts)
+  // console.log('==== isUserNfts', isUserNfts)
+  // console.log('==== nfts', nfts)
   return (
     <div className="w-full bg-bgMain flex flex-col items-center justify-center">
       <div className="w-full mt-8">

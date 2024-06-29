@@ -47,7 +47,6 @@ export default function Nav({ connectWallet, account, setAccount, setWeb3, updat
                     <span className="ml-2 font-bold text-[18px]">{account.slice(0, 5)}...{account.slice(-4)}</span>
                   </button>
                 </>
-              
             )}
           </div>
           <div id="menu-2" className={`hidden md:flex md:ml-auto flex-row items-start mt-[7px]`}>
