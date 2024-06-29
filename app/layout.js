@@ -20,9 +20,6 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    // <html lang="en" className={'bg-bgMain'}>
-    //   <body>{children}</body>
-    // </html>
     <html lang="en" className={'bg-bgMain'}>
       <body>
         <OnchainProviders>{children}</OnchainProviders>

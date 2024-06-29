@@ -5,14 +5,13 @@ import Web3 from 'web3';
 import Nav from '../components/main/Nav';
 import ChompLegacyABI from '../../abis/ChompLegacyABI.json';
 import LoadingIcon from '../components/elems/Loading';
-import { WagmiProvider } from 'wagmi';
-import wagmiConfig from '../../config/wagmi';
+// import { WagmiProvider } from 'wagmi';
+// import wagmiConfig from '../../config/wagmi';
 import NotFoundErrorBoundary from '../components/errors/NotFoundErrorBoundary'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+// import { QueryClient } from '@tanstack/react-query';
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 export default function CreateNft() {
   const { watch } = useForm({
@@ -42,23 +41,23 @@ export default function CreateNft() {
 
   const { name, description, image, attributes } = metadata;
 
-
   useEffect(() => {
     // console.log("==== USEEFFECT works:");
 
     const loadBlockchainData = async () => {
       // Create a Web3 instance using MetaMask's provider
-      const web3 = new Web3(window.ethereum);
+      if (typeof window !== "undefined") {
+        const web3 = new Web3(window.ethereum);
 
-      setWeb3(web3);
-
-      const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
-      setContract(contractInstance);
-
-      // Fetch user's data
-      const accounts = await web3.eth.getAccounts();
-      setAccount(accounts[0]);
-
+        setWeb3(web3);
+  
+        const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
+        setContract(contractInstance);
+  
+        // Fetch user's data
+        const accounts = await web3.eth.getAccounts();
+        setAccount(accounts[0]);
+      }
     };
 
     loadBlockchainData();
@@ -66,28 +65,29 @@ export default function CreateNft() {
 
 
   const connectWallet = async () => {
-    if (window.ethereum && window.ethereum.isMetaMask) {
-      setIsConnecting(true);
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        if (accounts.length === 0) {
-          console.log('MetaMask is locked or the user has not connected any accounts');
-          alert('Please connect to MetaMask.');
-        } else {
-          console.log('====== accounts[0] in connectWallet', accounts[0]);
-          setAccount(accounts[0]);
-          // fetchAllUserTokens(accounts[0], contract, web3, tokenContract)
-          return accounts[0];
+    if (typeof window !== "undefined") {
+      if (window.ethereum && window.ethereum.isMetaMask) {
+        setIsConnecting(true);
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  
+          if (accounts.length === 0) {
+            console.log('MetaMask is locked or the user has not connected any accounts');
+            alert('Please connect to MetaMask.');
+          } else {
+            // console.log('====== accounts[0] in connectWallet', accounts[0]);
+            setAccount(accounts[0]);
+            return accounts[0];
+          }
+        } catch (error) {
+          console.error("Error connecting to MetaMask:", error);
+          alert('Failed to connect MetaMask. Please try again.');
+        } finally {
+          setIsConnecting(false);
         }
-      } catch (error) {
-        console.error("Error connecting to MetaMask:", error);
-        alert('Failed to connect MetaMask. Please try again.');
-      } finally {
-        setIsConnecting(false);
+      } else {
+        alert('Please install MetaMask!');
       }
-    } else {
-      alert('Please install MetaMask!');
     }
     return null;
   };
@@ -106,7 +106,6 @@ export default function CreateNft() {
       const releaseDateTime = new Date(releaseTime);
       const releaseTimestamp = Math.floor(releaseDateTime.getTime() / 1000);
   
-
       const res = await contract.methods.createLegacy(
         maxIssuance,
         tokenURI,

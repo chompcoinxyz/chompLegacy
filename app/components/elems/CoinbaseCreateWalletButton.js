@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 import { useConnect, useAccount, useDisconnect } from 'wagmi';
-import { CoinbaseWalletSDK } from '@coinbase/wallet-sdk';
+// import { CoinbaseWalletSDK } from '@coinbase/wallet-sdk';
 import CoinbaseWalletLogo from './CoinbaseWalletLogo';
-import Web3 from 'web3';
+// import Web3 from 'web3';
 
 const buttonStyles = {
   border: '1px solid white',
@@ -15,15 +15,15 @@ const buttonStyles = {
   borderRadius: 11,
 };
 
-const chain = process.env.PROD ? 8453 : 84532;
+// const chain = process.env.PROD ? 8453 : 84532;
 
-const sdk = new CoinbaseWalletSDK({
-  appName: 'CHOMP Legacy',
-  appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
-  appChainIds: [chain],
-});
+// const sdk = new CoinbaseWalletSDK({
+//   appName: 'CHOMP Legacy',
+//   appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
+//   appChainIds: [chain],
+// });
 
-const provider = sdk.makeWeb3Provider();
+// const provider = sdk.makeWeb3Provider();
 
 // console.log('==== sdk', sdk)
 // console.log('==== provider', provider)

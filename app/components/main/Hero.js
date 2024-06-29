@@ -8,7 +8,7 @@ import MockChompCoinABI from '../../../abis/MockChompCoinABI.json';
 import ConnectWallet from './ConnectWallet';
 import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { WagmiProvider, createConfig, http, cookieToInitialState, useConnect, useClient, useAccount, useProvider, useReadContract, useReadContracts } from 'wagmi';
+import { WagmiProvider, createConfig, http, cookieToInitialState, useConnect, useWaitForTransactionReceipt, useClient, useAccount, useWriteContract, useReadContract, useReadContracts } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 // import { baseSepolia } from 'viem/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
@@ -18,26 +18,29 @@ import Deposit from './Deposit';
 import Nav from './Nav';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
+import Footer from '../elems/Footer';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import wagmiConfig from '../../../config/wagmi';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
 
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-const sdk = new CoinbaseWalletSDK({
-  appName: 'CHOMP Legacy',
-  appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
-  appChainIds: [84532],
-});
+import dynamic from 'next/dynamic';
+// const CoinbaseWalletSDKComponent = dynamic(
+//   () => import('@coinbase/wallet-sdk'),
+//   { ssr: false }
+// );
 
-const cbProvider = sdk.makeWeb3Provider();
+// import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+// const sdk = new CoinbaseWalletSDK({
+//   appName: 'CHOMP Legacy',
+//   appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
+//   appChainIds: [84532],
+// });
 
-const queryClient = new QueryClient();
+// const cbProvider = sdk.makeWeb3Provider();
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 const legaciesAddress = process.env.NEXT_PUBLIC_LEGACIES_ADDRESS;
-
-const bg = '../../../public/img/bg_ellipse.svg'
 
 export default function Hero() {
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -53,9 +56,15 @@ export default function Hero() {
   const client = useClient()
   const { connectors, connect, data } = useConnect();
   const connector = connectors[0];
-  console.log("========= address", address);
-  console.log("========= client", client);
-  console.log("========= connectors", connectors);
+  const { data: hash, writeContract, isPending } = useWriteContract()
+  const { isLoading: isConfirming, isSuccess } =
+    useWaitForTransactionReceipt({
+      hash,
+    })
+
+  // console.log("========= address", address);
+  // console.log("========= client", client);
+  // console.log("========= connectors", connectors);
 
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -132,7 +141,7 @@ export default function Hero() {
 
   async function fetchUserStakedTokens(account, contract, web3) {
     if (!contract) return;
-    // console.log("fetchUserStakedTokens starting for", account);
+    console.log("fetchUserStakedTokens starting for", account);
 
     try {
         const userStakedWei = await contract.methods.balanceOf(account).call();
@@ -242,38 +251,64 @@ export default function Hero() {
     }
   }
 
-  // const wagmiContractConfig = {
-  //   address: legaciesAddress,
-  //   abi: LegaciesABI,
-  // };
+  const chompLegacyContractConfig = {
+    address: chompLegacyAddress,
+    abi: ChompLegacyABI,
+  };
+  const legaciesContractConfig = {
+    address: legaciesAddress,
+    abi: LegaciesABI,
+  };
+  const chompCoinConfig = {
+    address: chompCoinAddress,
+    abi: MockChompCoinABI,
+  };
   // const { data: lastID } = useReadContract({
-  //   ...wagmiContractConfig,
+  //   ...legaciesContractConfig,
   //   functionName: 'lastID',
   //   args:[]
-  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
   // })
 
   // const { data: totalSupply } = useReadContract({
-  //   ...wagmiContractConfig,
+  //   ...legaciesContractConfig,
   //   functionName: 'totalSupply',
   //   args:[4]
-  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
   // })
 
   // const { data: maxIssuance } = useReadContract({
-  //   ...wagmiContractConfig,
+  //   ...legaciesContractConfig,
   //   functionName: 'maxIssuance',
   //   args:[4]
-  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
   // })
   // const { data: uri } = useReadContract({
-  //   ...wagmiContractConfig,
+  //   ...legaciesContractConfig,
   //   functionName: 'uri',
   //   args:[4]
-  //   // args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+  // }) 
+
+  // const { 
+  //   data: dataLegacy,
+  //   error,
+  //   isPending
+  // } = useReadContracts({ 
+  //   contracts: [{ 
+  //     ...chompLegacyContractConfig,
+  //     functionName: 'earned',
+  //     args: [address],
+  //   }, { 
+  //     ...chompLegacyContractConfig, 
+  //     functionName: 'balanceOf', 
+  //     args: [address], 
+  //   },
+  // ] 
+  // }) 
+  // const [earned, balanceOf] = dataLegacy || [];
+  
+  // const { data: balanceOfUser } = useReadContract({
+  //   ...chompCoinConfig,
+  //   functionName: 'balanceOf',
+  //   args:[address]
   // })
-  // // const [totalStaked, ownerOf, totalSupply] = data || [] 
-  // // const [totalStaked] = data || [] 
 
   // console.log('======= lastID fetchWagmiData', lastID)
   // console.log('======= lastID fetchWagmiData', Number(lastID))
@@ -281,25 +316,132 @@ export default function Hero() {
   // console.log('======= totalSupply fetchWagmiData', Number(totalSupply))
   // console.log('======= maxIssuance fetchWagmiData', maxIssuance)
   // console.log('======= uri fetchWagmiData', uri)
+  // console.log('======= earned fetchWagmiData', earned)
+  // console.log('======= balanceOf fetchWagmiData', balanceOf)
+  // console.log('======= balanceOfUser fetchWagmiData', balanceOfUser)
+  // console.log('======= userDots fetchWagmiData', userDots)
 
-  console.log('==== web3', web3)
-  console.log('==== web3.currentProvider', web3?.currentProvider)
+  // let userDotsData = earned?.result ? web3.utils.fromWei(earned.result, 'ether') : '0';
+  // console.log('==== userDotsData in fetchUserTokensX',userDotsData)
+  // setUserDots(userDotsData);
+
+  // let userStakedTokensData = balanceOf?.result ? web3.utils.fromWei(balanceOf.result, 'ether') : '0';
+  // // if (userStakedTokensData === '0.') userStakedTokensData = 0;
+  // setUserStakedTokens(userStakedTokensData);
+
+  // let userChomp = balanceOfUser ? web3.utils.fromWei(balanceOfUser, 'ether') : 0;
+  // // if (userChomp === '0.') userChomp = 0;
+  // setUserChompBalanceTokens(userChomp);
+
+  
+
+  async function fetchUserTokensX(account) {
+    if (!account) return;
+    // console.log("fetchUserStakedTokens starting for", account);
+
+    try {
+        const { 
+          data: dataLegacy,
+          error,
+          isPending
+        } = useReadContracts({ 
+          contracts: [{ 
+            ...chompLegacyContractConfig,
+            functionName: 'earned',
+            args: [address],
+          }, { 
+            ...chompLegacyContractConfig, 
+            functionName: 'balanceOf', 
+            args: [address], 
+          }] 
+        }) 
+        const [earned, balanceOf] = dataLegacy || [];
+        
+        const { data: balanceOfUser } = useReadContract({
+          ...chompCoinConfig,
+          functionName: 'balanceOf',
+          args:[address]
+        })
+        console.log('==== earned in fetchUserTokensX', earned)
+
+        let userDots = earned?.result ? web3.utils.fromWei(earned.result, 'ether') : '0';
+        console.log('==== userDots in fetchUserTokensX',userDots)
+        setUserDots(userDots);
+     
+        let userStakedTokens = balanceOf?.result ? web3.utils.fromWei(balanceOf.result, 'ether') : '0';
+        // if (userStakedTokens === '0.') userStakedTokens = 0;
+        setUserStakedTokens(userStakedTokens);
+
+        let userChomp = balanceOfUser ? web3.utils.fromWei(balanceOfUser, 'ether') : 0;
+        // if (userChomp === '0.') userChomp = 0;
+        setUserChompBalanceTokens(userChomp);
+
+    } catch (error) {
+        console.error("Error fetching user staked tokens:", error);
+    }
+  }
+
+
+  // console.log('==== web3', web3)
+  // console.log('==== web3.currentProvider', web3?.currentProvider)
+
+  // useEffect(() => {
+  //   const loadBlockchainData = async () => {
+  //     const provider = await getProvider(); // This ensures the provider is ready
+  //     if (!provider) return; // Early exit if no provider
+  //     // console.log('==== provider in useffect', provider)
+
+  //     // console.log("========= connector in useeffect", connector);
+  //     //  const provider = await connector.getProvider();
+  //     // console.log("========= provider", provider);
+      
+  //     // const web3 = new Web3(provider);
+  //     const web3 = new Web3(window.ethereum);
+  //     // const web3 = new Web3(cbProvider);
+  //     // const web3 = new Web3(rpc);
+  //     setWeb3(web3);
+  //     console.log("======= address in USEEFFECT:", address);
+  //     console.log("======= WEB3 in USEEFFECT:", web3);
+
+  //     const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
+  //     setContract(contractInstance);
+
+  //     const tokenContractInstance = new web3.eth.Contract(MockChompCoinABI, chompCoinAddress);
+  //     setTokenContract(tokenContractInstance);
+
+  //     const legaciesContractInstance = new web3.eth.Contract(LegaciesABI, legaciesAddress);
+  //     setLegaciesContract(legaciesContractInstance);
+    
+  //     const staked = await fetchTotalStaked(contractInstance, web3);
+
+  //     const accounts = await web3.eth.getAccounts();
+  //     // const accounts = [address];
+  //     console.log("======= accounts in USEEFFECT:", accounts);
+
+  //     if (accounts.length > 0) {
+  //       fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
+  //       setAccount(accounts[0]);
+  //     } 
+
+  //     let wallet = accounts?.length > 0 ? accounts[0] : null;
+  //     const nftData = await fetchNFTData(legaciesContractInstance, wallet);
+  //   }
+  //   loadBlockchainData();
+  // }, []);
+
+
+  const rpc = new Web3(process.env.NEXT_PUBLIC_RPC_URL);
+
   useEffect(() => {
     const loadBlockchainData = async () => {
       // const provider = await getProvider(); // This ensures the provider is ready
       // if (!provider) return; // Early exit if no provider
       // console.log('==== provider in useffect', provider)
-
-      // console.log("========= connector in useeffect", connector);
-      //  const provider = await connector.getProvider();
-      // console.log("========= provider", provider);
       
-      // const web3 = new Web3(provider);
       const web3 = new Web3(window.ethereum);
       // const web3 = new Web3(cbProvider);
       // const web3 = new Web3(rpc);
       setWeb3(web3);
-      console.log("======= address in USEEFFECT:", address);
       console.log("======= WEB3 in USEEFFECT:", web3);
 
       const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
@@ -311,24 +453,42 @@ export default function Hero() {
       const legaciesContractInstance = new web3.eth.Contract(LegaciesABI, legaciesAddress);
       setLegaciesContract(legaciesContractInstance);
     
-      const staked = await fetchTotalStaked(contractInstance, web3);
+      // const staked = await fetchTotalStaked(contractInstance, web3);
 
-      const accounts = await web3.eth.getAccounts();
+      // const accounts = await web3.eth.getAccounts();
       // const accounts = [address];
-      console.log("======= accounts in USEEFFECT:", accounts);
+      // const address = accounts[0];
+      // console.log("======= accounts in USEEFFECT:", accounts);
+      console.log("======= address in USEEFFECT:", address);
 
-      if (accounts.length > 0) {
-        fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
-        setAccount(accounts[0]);
+      if (address?.length > 0) {
+        fetchAllUserTokens(address, contractInstance, web3, tokenContractInstance);
+        // fetchUserTokensX(address);
+        setAccount(address);
       } 
 
-      let wallet = accounts?.length > 0 ? accounts[0] : null;
-      const nftData = await fetchNFTData(legaciesContractInstance, wallet);
+      if (!nfts || nfts?.length === 0) {
+        // let wallet = accounts?.length > 0 ? accounts[0] : null;
+        const nftData = await fetchNFTData(legaciesContractInstance, address);
+      }
+      
     }
     loadBlockchainData();
-  }, []);
+  }, [address]);
 
+  // useEffect(() => {
+  //   console.log("======= address in USEEFFECT 2:", address);
+  //   if (!address) return
+  //   console.log("======= address.length > 0 && address !== account in USEEFFECT 2:", address.length > 0 && address !== account);
+  //   console.log("======= contract in USEEFFECT 2:", contract);
+  //   console.log("======= tokenContract in USEEFFECT 2:", tokenContract);
+  //   console.log("======= web3 in USEEFFECT 2:", web3);
 
+  //   if (address.length > 0 && address !== account) {
+  //     fetchAllUserTokens(address, contract, web3, tokenContract);
+  //     setAccount(address);
+  //   } 
+  // }, [address]);
 
   const updateProvider = async (connector) => {
     // window.ethereum.disconnect();
@@ -352,16 +512,9 @@ export default function Hero() {
 
   const connectWallet = async () => {
     console.log('====== connectWallet starting...');
-    if (window.ethereum && window.ethereum.isMetaMask) {
+    if (typeof window !== "undefined" && window.ethereum && window.ethereum.isMetaMask) {
     // if (window.ethereum) {
       setIsConnecting(true);
-
-      // // change provider
-      // const provider = await getProvider(); 
-      // console.log('==== provider in connectWallet', provider)
-      
-      // const web3 = new Web3(provider);
-      // setWeb3(web3);
 
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -443,9 +596,19 @@ export default function Hero() {
     }
   
     try {
-      const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
+      // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      // const requestData = { method: 'approve' };
+      writeContract({
+        ...chompCoinConfig,
+        functionName: 'approve',
+        // args: [BigInt(tokenId)],
+        args: [chompLegacyAddress, amountInWei],
+        meta: "Approving Chomp staking"
+      })
+
+      console.log('==== hash in ensureTokenApproval', hash)
+
+      // const requestData = { functionName: 'approve' };
       // const response = await fetch('/api/sendTransaction', {
       //   method: 'POST',
       //   headers: {
@@ -453,17 +616,18 @@ export default function Hero() {
       //   },
       //   body: JSON.stringify(requestData),
       // });
+      // console.log('response successful:', response);
       // if (!response.ok) {
       //   throw new Error('Network response was not ok');
       // }
       // const approvalResult = await response.json();
       // console.log('Transaction successful:', approvalResult);
 
-      return approvalResult.status;
+      // return approvalResult.status;
       return true;
     } catch (error) {
       console.error('Approval error:', error);
-      alert("Approval failed. See the console for more information.");
+      // alert("Approval failed. See the console for more information.");
       setLoading(false);
       return false;
     }
@@ -504,9 +668,9 @@ export default function Hero() {
   
       setIsApproved(isApprovedRes);
   
-      if (isApprovedRes) {
-        alert("Approved. You can stake CHOMP tokens now.");
-      }
+      // if (isApprovedRes) {
+      //   alert("Approved. You can stake CHOMP tokens now.");
+      // }
   
       setLoading(false);
     } catch (error) {
@@ -543,14 +707,38 @@ export default function Hero() {
       const amountInWei = web3.utils.toWei(amount, 'ether');
       
       // Execute the stake transaction
-      const transaction = await contract.methods.stake(amountInWei).send({ from: effectiveAccount });
-      alert("Stake successful! Transaction hash: " + transaction.transactionHash);
-      console.log('=== transaction in onStake', transaction)
+      // const transaction = await contract.methods.stake(amountInWei).send({ from: effectiveAccount });
+      // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
+      // console.log('=== transaction in onStake', transaction)
+
+      writeContract({
+        ...chompLegacyContractConfig,
+        functionName: 'stake',
+        args: [amountInWei],
+      })
+      // alert("Stake successful! Transaction hash: " + hash);
+
+      // const requestData = { functionName: 'stake' };
+      // const response = await fetch('/api/sendTransaction', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(requestData),
+      // });
+      // if (!response.ok) {
+      //   throw new Error('Network response was not ok');
+      // }
+      // const approvalResult = await response.json();
+      // console.log('Transaction successful:', approvalResult);
+
+
+      console.log('==== hash', hash)
 
       // Update total staked tokens and user staked tokens
       await fetchUserStakedTokens(effectiveAccount, contract, web3);
 
-      await fetchTotalStaked();
+      // await fetchTotalStaked();
 
       // Reset the amount input field
       reset({ amount: '' });
@@ -579,14 +767,35 @@ export default function Hero() {
         setWithdrawLoading(true);
 
         const amount = web3.utils.toWei(amountWithdraw.toString(), 'ether')
-        const response = await contract.methods.withdraw(amount).send({ from: account });
-        console.log('===== response in onWithdraw', response)
+        // const response = await contract.methods.withdraw(amount).send({ from: account });
+        // console.log('===== response in onWithdraw', response)
+
+        writeContract({
+          ...chompLegacyContractConfig,
+          functionName: 'withdraw',
+          args: [amount],
+        })
+
+        // const requestData = { functionName: 'withdraw' };
+        // const response = await fetch('/api/sendTransaction', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(requestData),
+        // });
+        // console.log('response successful:', response);
+        // if (!response.ok) {
+        //   throw new Error('Network response was not ok');
+        // }
+        // const approvalResult = await response.json();
+        // console.log('Transaction successful:', approvalResult);
 
         // Alert success message
-        alert("Unstake successful! Your tokens have been returned to your wallet.");
+        // alert("Unstake successful! Your tokens have been returned to your wallet.");
 
         // Update UI - fetch latest total staked tokens and user-specific staked tokens
-        await fetchTotalStaked();
+        // await fetchTotalStaked();
         await fetchUserStakedTokens(account, contract, web3);
        
         setWithdrawLoading(false)
@@ -623,15 +832,45 @@ export default function Hero() {
         };
 
         const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
-        console.log('=== txResponse onMint', txResponse)
-        
-        setTxHash(txResponse.transactionHash);
+        console.log('==?= txResponse onMint', txResponse)
 
-        if (txResponse && txResponse.status) {
-          console.log('Minting was successful:', txResponse.transactionHash);
+        // writeContract({
+        //   ...chompLegacyContractConfig,
+        //   functionName: 'redeem',
+        //   args: [tokenId, quantity],
+        //   variables: {
+        //     from: account,
+        //     value: requiredEth.toString()
+        //   },
+        // })
+        // console.log('=== hash onMint', hash)
+        // console.log('=== isConfirming onMint', isConfirming)
+        // console.log('=== isSuccess onMint', isSuccess)
+
+        // const requestData = { functionName: 'redeem' };
+        // const response = await fetch('/api/sendTransaction', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(requestData),
+        // });
+        // console.log('mint response successful:', response);
+        // if (!response.ok) {
+        //   throw new Error('Network response was not ok');
+        // }
+        // const approvalResult = await response.json();
+        // console.log('Transaction successful:', approvalResult);
+
+        
+        // setTxHash(txResponse.transactionHash);
+
+        // if (txResponse && txResponse.status) {
+        if (isSuccess) {
+          // console.log('Minting was successful:', txResponse.transactionHash);
 
           setActiveLegacyTab(2);
-          alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
+          // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
         } 
 
         setMintLoading(false)
@@ -649,102 +888,90 @@ export default function Hero() {
  
   return (
     <NotFoundErrorBoundary>
-      {/* <WagmiProvider config={wagmiConfig}> */}
-        {/* <QueryClientProvider client={queryClient}> */}
-          {/* <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAIN_KEY} chain={baseSepolia}> */}
-            <div className="max-w-[1300px] mx-auto px-4 relative">
-
-              <div className="pt-[25px] z-10">
-                
-                {/* <div className="border border-white solid rounded-[20px] py-[25px] px-[50px]"> */}
-                <div className="border__main">
-                  <div className="border__main__content">
-                    <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} setWeb3={setWeb3} updateProvider={updateProvider} />
-                    <h1 className="font-amiger text-[35px] md:text-[55px] pt-[20px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
-                    <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
-                      {!account ? (
-                        <div className="w-[300px]">
-                          <StakeButton 
-                            onClick={connectWallet}
-                            disabled={isConnecting}
-                            loading={loading}
-                            text="Connect Wallet"
-                            isDisabledStyles={''}
-                          />
-                        </div>
-                        
-                      ) : (
-                        <div className="">
-                          <Deposit 
-                            isUnlocked={isUnlocked}
-                            isWalletConnected={isWalletConnected}
-                            onStake={onStake}
-                            amount={amount}
-                            handleSubmit={handleSubmit}
-                            register={register}
-                            onApprove={onApprove}
-                            isApproved={isApproved}
-                            loading={loading}
-                            stakeLoading={stakeLoading}
-                            handleMaxClick={handleMaxClick}
-                            balance={userChompBalanceTokens}
-                            userDots={userDots}
-                            setActiveTab={setActiveTab}
-                            activeTab={activeTab}
-                            onWithdraw={onWithdraw}
-                            withdrawLoading={withdrawLoading}
-                            handleWithdrawMaxClick={handleWithdrawMaxClick}
-                            amountWithdraw={amountWithdraw}
-                            userStakedTokens={userStakedTokens} 
-                          />
-                        </div>
-                      )}
-                    </div>
+      <div className="max-w-[1300px] mx-auto px-4 relative">
+        <div className="pt-[25px] z-10">
+          <div className="border__main">
+            <div className="border__main__content">
+              <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} setWeb3={setWeb3} updateProvider={updateProvider} />
+              <h1 className="font-amiger text-[35px] md:text-[55px] pt-[5px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
+              <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
+                {!account ? (
+                  <div className="w-[300px]">
+                    <StakeButton 
+                      onClick={connectWallet}
+                      disabled={isConnecting}
+                      loading={loading}
+                      text="Connect Wallet"
+                      isDisabledStyles={''}
+                    />
                   </div>
-                </div>
-              </div>
-                
-              <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
-                <div className="w-full">
-
-                  {/* <ConnectWallet setAccount={setAccount} /> */}
-
-                  <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
-                  
-                  {activeLegacyTab === 1 && (
-                    <Minting 
-                      nfts={nfts}
-                      onMint={onMint} 
-                      mintLoading={mintLoading} 
-                      txHash={txHash} 
-                      txStatus={txStatus} 
-                      nftLoading={nftLoading}
-                      account={account}
-                      mintIndex={mintIndex}
+                ) : (
+                  <div className="">
+                    <Deposit 
+                      isUnlocked={isUnlocked}
+                      isWalletConnected={isWalletConnected}
+                      onStake={onStake}
+                      amount={amount}
+                      handleSubmit={handleSubmit}
+                      register={register}
+                      onApprove={onApprove}
+                      isApproved={isApproved}
+                      loading={loading}
+                      stakeLoading={stakeLoading}
+                      handleMaxClick={handleMaxClick}
+                      balance={userChompBalanceTokens}
+                      userDots={userDots}
+                      setActiveTab={setActiveTab}
+                      activeTab={activeTab}
+                      onWithdraw={onWithdraw}
+                      withdrawLoading={withdrawLoading}
+                      handleWithdrawMaxClick={handleWithdrawMaxClick}
+                      amountWithdraw={amountWithdraw}
+                      userStakedTokens={userStakedTokens} 
                     />
-                  )}
-
-                  {activeLegacyTab === 2 && (
-                    <Minting 
-                      nfts={userNfts}
-                      onMint={onMint} 
-                      mintLoading={mintLoading} 
-                      txHash={txHash} 
-                      txStatus={txStatus} 
-                      nftLoading={nftUserLoading}
-                      isUserNfts={true}
-                      account={account}
-                      mintIndex={mintIndex}
-                    />
-                  )}
-              
-                </div>
+                  </div>
+                )}
               </div>
             </div>
+          </div>
+        </div>
+          
+        <div className='w-full flex mt-[55px] lg:h-screen pb-20'>
+          <div className="w-full">
+            <LegacyTabs activeTab={activeLegacyTab} setActiveTab={setActiveLegacyTab} />
+            
+            {activeLegacyTab === 1 && (
+              <Minting 
+                nfts={nfts}
+                onMint={onMint} 
+                mintLoading={mintLoading} 
+                txHash={txHash} 
+                txStatus={txStatus} 
+                nftLoading={nftLoading}
+                account={account}
+                mintIndex={mintIndex}
+              />
+            )}
 
-          {/* </OnchainKitProvider> */}
-        {/* </QueryClientProvider> */}
-      {/* </WagmiProvider>  */}
+            {activeLegacyTab === 2 && (
+              <Minting 
+                nfts={userNfts}
+                onMint={onMint} 
+                mintLoading={mintLoading} 
+                txHash={txHash} 
+                txStatus={txStatus} 
+                nftLoading={nftUserLoading}
+                isUserNfts={true}
+                account={account}
+                mintIndex={mintIndex}
+              />
+            )}
+        
+          </div>
+        </div>
+      </div>
+      <div className="mt-8 mb-10"><Footer /></div>
+     
     </NotFoundErrorBoundary>
   );
 }
