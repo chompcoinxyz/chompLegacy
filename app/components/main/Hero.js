@@ -831,20 +831,22 @@ export default function Hero() {
           value: requiredEth.toString() 
         };
 
-        const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
-        console.log('==?= txResponse onMint', txResponse)
+        // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
+        // console.log('==?= txResponse onMint', txResponse)
 
-        // writeContract({
-        //   ...chompLegacyContractConfig,
-        //   functionName: 'redeem',
-        //   args: [tokenId, quantity],
-        //   variables: {
-        //     from: account,
-        //     value: requiredEth.toString()
-        //   },
-        // })
-        // console.log('=== hash onMint', hash)
-        // console.log('=== isConfirming onMint', isConfirming)
+        writeContract({
+          ...chompLegacyContractConfig,
+          functionName: 'redeem',
+          args: [tokenId, quantity],
+          // variables: {
+          //   from: account,
+          //   value: requiredEth.toString()
+          // },
+          from: account,
+          value: requiredEth.toString()
+        })
+        console.log('=== hash onMint', hash)
+        console.log('=== isConfirming onMint', isConfirming)
         // console.log('=== isSuccess onMint', isSuccess)
 
         // const requestData = { functionName: 'redeem' };
