@@ -7,7 +7,7 @@ export default function StakeButton({ onClick, disabled, isDisabledStyles, loadi
         <button 
           type="submit" 
           onClick={onClick}
-          className={`w-full h-[50px] text-[17px] shadow-xl flex flex-row items-center justify-center font-bold text-white uppercase ${isDisabledStyles ? '!bg-transparent text-primary pt-[10px]' : 'border__button__content'}`}
+          className={`w-full h-[50px] text-[17px] shadow-xl flex flex-row items-center justify-center font-bold text-white uppercase ${isDisabledStyles ? '!bg-transparent text-primary py-[10px]' : 'border__button__content'}`}
           disabled={disabled}
         >
           <span className={`${isDisabledStyles ? 'text-primary' : 'border__button__text' } flex flex-row items-center`}>

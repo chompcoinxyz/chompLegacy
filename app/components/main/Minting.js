@@ -28,7 +28,7 @@ export default function Minting({
                   {txHash && <p>Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className='text-blue-600 hover:text-blue-500'>{txHash}</a></p>}
               </div>
             )} */}
-            <div className="w-full flex flex-wrap justify-center items-start">
+            <div className={`w-full flex flex-wrap ${!isUserNfts ? 'justify-start' : 'justify-center'} items-start`}>
               {nfts?.length > 0 && nfts.map((nft, index) => (
                 <div key={nft.tokenId} className="w-full sm:w-1/3 p-4">
                   <NftCard 

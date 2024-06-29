@@ -183,7 +183,7 @@ export default function Hero() {
           const metadata = await response.json();
           // console.log('==== metadata in loop', metadata)
   
-          nfts.push({
+          nfts.unshift({
             tokenId,
             uri,
             totalSupply: Number(totalSupply),
@@ -380,54 +380,6 @@ export default function Hero() {
         console.error("Error fetching user staked tokens:", error);
     }
   }
-
-
-  // console.log('==== web3', web3)
-  // console.log('==== web3.currentProvider', web3?.currentProvider)
-
-  // useEffect(() => {
-  //   const loadBlockchainData = async () => {
-  //     const provider = await getProvider(); // This ensures the provider is ready
-  //     if (!provider) return; // Early exit if no provider
-  //     // console.log('==== provider in useffect', provider)
-
-  //     // console.log("========= connector in useeffect", connector);
-  //     //  const provider = await connector.getProvider();
-  //     // console.log("========= provider", provider);
-      
-  //     // const web3 = new Web3(provider);
-  //     const web3 = new Web3(window.ethereum);
-  //     // const web3 = new Web3(cbProvider);
-  //     // const web3 = new Web3(rpc);
-  //     setWeb3(web3);
-  //     console.log("======= address in USEEFFECT:", address);
-  //     console.log("======= WEB3 in USEEFFECT:", web3);
-
-  //     const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
-  //     setContract(contractInstance);
-
-  //     const tokenContractInstance = new web3.eth.Contract(MockChompCoinABI, chompCoinAddress);
-  //     setTokenContract(tokenContractInstance);
-
-  //     const legaciesContractInstance = new web3.eth.Contract(LegaciesABI, legaciesAddress);
-  //     setLegaciesContract(legaciesContractInstance);
-    
-  //     const staked = await fetchTotalStaked(contractInstance, web3);
-
-  //     const accounts = await web3.eth.getAccounts();
-  //     // const accounts = [address];
-  //     console.log("======= accounts in USEEFFECT:", accounts);
-
-  //     if (accounts.length > 0) {
-  //       fetchAllUserTokens(accounts[0], contractInstance, web3, tokenContractInstance);
-  //       setAccount(accounts[0]);
-  //     } 
-
-  //     let wallet = accounts?.length > 0 ? accounts[0] : null;
-  //     const nftData = await fetchNFTData(legaciesContractInstance, wallet);
-  //   }
-  //   loadBlockchainData();
-  // }, []);
 
 
   const rpc = new Web3(process.env.NEXT_PUBLIC_RPC_URL);

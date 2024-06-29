@@ -42,12 +42,15 @@ export default function CreateNft() {
   const { name, description, image, attributes } = metadata;
 
   useEffect(() => {
-    // console.log("==== USEEFFECT works:");
+    console.log("==== USEEFFECT works:");
 
     const loadBlockchainData = async () => {
       // Create a Web3 instance using MetaMask's provider
       if (typeof window !== "undefined") {
         const web3 = new Web3(window.ethereum);
+
+        console.log("==== USEEFFECT setting Metamasks's profiver", web3);
+
 
         setWeb3(web3);
   
@@ -144,7 +147,7 @@ export default function CreateNft() {
 
   const inputStyles = "text-[17px] p-2 ml-4 border-0 mr-2 rounded text-center focus:outline-none";
 
-  // console.log('==== metadata', metadata)
+  console.log('==== web3', web3)
   return (
     <NotFoundErrorBoundary>
       {/* <WagmiProvider config={wagmiConfig}>
@@ -178,7 +181,8 @@ export default function CreateNft() {
 
           {tokenURI?.length > 0 && (
             <div className="max-w-[500px] mt-6 mb-6 mx-auto">
-              <p className="text-xl text-primary"><b>Important!</b> Save this metadata as Token URI: {tokenURI}</p>
+              <p className="text-[18px] text-white"><b>Important!</b> Use this metadata as Token URI:</p>
+              <a href={tokenURI} className="text-[18px] text-primary hover:opacity-80" target="_blank" rel="noopener noreferrer">{tokenURI}</a>
             </div>
           )}
 
@@ -210,7 +214,9 @@ export default function CreateNft() {
           </div>
           {nftHash.length > 0 && (
             <div className="max-w-[500px] mt-6 mb-6 mx-auto">
-              <p className="text-xl text-primary">NFT was created. Transaction Hash: {nftHash}</p>
+              <p className="text-xl text-white">NFT was created. Transaction Hash: </p>
+              <a href={`https://${process.env.NEXT_PUBLIC_PROD === 'true' ? '' : 'sepolia.'}basescan.org/tx/${nftHash}`} className="text-[18px] text-primary hover:opacity-80" target="_blank" rel="noopener noreferrer">{nftHash}</a>
+
             </div>
           )}
         </main>
