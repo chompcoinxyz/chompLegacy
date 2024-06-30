@@ -4,8 +4,8 @@ import { coinbaseWallet } from 'wagmi/connectors';
 const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
 
 const wagmiConfig = createConfig({
-  chains: [chain],
-  // chains: [base, baseSepolia],
+  // chains: [chain],
+  chains: [base, baseSepolia],
   connectors: [
     coinbaseWallet({
       appChainIds: [chain.id],

@@ -66,7 +66,7 @@ export default function Deposit({
           <div className="w-1/2 text-right">
             <p className="text-[13px] font-medium text-white text-right uppercase flex flex-col sm:flex-row justify-end  items-end sm:items-center">
               balance: {formattedDots}
-              <span className="flex flex-row items-center">dots <span className="ml-2"><DotsIcon/></span></span>
+              <span className="flex flex-row items-center ml-1">dots <span className="ml-2"><DotsIcon/></span></span>
             </p>
           </div>
         </div>
