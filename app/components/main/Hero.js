@@ -9,8 +9,9 @@ import {
   useConnect, useWaitForTransactionReceipt, 
   useClient, useAccount, 
   useWriteContract, useReadContract, 
-  useReadContracts, 
+  useReadContracts,
 } from 'wagmi';
+import { useWriteContracts } from 'wagmi/experimental';
 import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
@@ -43,9 +44,9 @@ export default function Hero() {
   const { isLoading: isConfirming, isSuccess } =
     useWaitForTransactionReceipt({
       hash,
-    })
+    });
+  const { data: callID, writeContracts, isSuccess: isSuccessTransaction } = useWriteContracts();
 
-  // console.log("========= address", address);
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [contract, setContract] = useState(null);
@@ -87,8 +88,6 @@ export default function Hero() {
 
   const [zoraData, setZoraData] = useState(false);
   const networkInfo = {
-    // network: ZDKNetwork.Ethereum,
-    // chain: ZDKChain.Mainnet,
     network: ZDKNetwork.Base,
     chain: ZDKChain.BaseMainnet,
   }
@@ -101,31 +100,14 @@ export default function Hero() {
   const zdk = new ZDK(args);
 
 
-  const fetchTotalStaked = async (contractInstance, web3) => {
-    if (!contractInstance || !web3) return;
-    // console.log("==== contractInstance in fetchTotalStaked:", contractInstance);
-
-    try {
-      const totalStakedWei = await contractInstance.methods.totalStaked().call();
-      let totalStakedTokens = web3.utils.fromWei(totalStakedWei, 'ether');
-      // console.log("==== totalStakedTokens in fetchTotalStaked:", totalStakedTokens);
-      if (totalStakedTokens === '0.') totalStakedTokens = 0;
-      setTotalStaked(totalStakedTokens);
-
-      return totalStakedTokens;
-    } catch (error) {
-      console.error('Failed to fetch total staked tokens:', error);
-    }
-  };
-
   async function fetchUserStakedTokens(account, contract, web3) {
     if (!contract) return;
 
     try {
         const userStakedWei = await contract.methods.balanceOf(account).call();
         let userStakedTokens = web3.utils.fromWei(userStakedWei, 'ether');
-        // console.log("User staked tokens:", userStakedTokens);
         if (userStakedTokens === '0.') userStakedTokens = 0;
+        // console.log("fetchUserStakedTokens: User staked tokens:", userStakedTokens);
         setUserStakedTokens(userStakedTokens);
     } catch (error) {
         console.error("Error fetching user staked tokens:", error);
@@ -242,7 +224,8 @@ export default function Hero() {
     abi: ChompCoinABI,
   };
 
-  const rpc = new Web3(process.env.NEXT_PUBLIC_RPC_URL);
+  // const rpc = new Web3(process.env.NEXT_PUBLIC_RPC_URL);
+  const rpc = process.env.NEXT_PUBLIC_RPC_URL;
 
   useEffect(() => {
     const loadBlockchainData = async () => {
@@ -250,8 +233,8 @@ export default function Hero() {
       // if (!provider) return; // Early exit if no provider
       // console.log('==== provider in useffect', provider)
       
-      const web3 = new Web3(window.ethereum);
-      // const web3 = new Web3(rpc);
+      // const web3 = new Web3(window.ethereum);
+      const web3 = new Web3(rpc);
       setWeb3(web3);
       // console.log("======= WEB3 in USEEFFECT:", web3);
 
@@ -288,13 +271,17 @@ export default function Hero() {
 
   useEffect(() => {
     if (!account || !contract || !web3 || !tokenContract) return
-    // console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
+    // console.log("======= isSuccessTransaction in USEEFFECT 2:", isSuccessTransaction);
 
-    if (isSuccess) {
-      fetchAllUserTokens(account, contract, web3, tokenContract);
+    if (isSuccess || isSuccessTransaction) {
+      // fetchAllUserTokens(account, contract, web3, tokenContract);
       fetchUserChompBalance(account, tokenContract, web3)
+
+      const timeoutId = setTimeout(() => {
+        fetchAllUserTokens(account, contract, web3, tokenContract);
+      }, 4000);
     }
-  }, [isSuccess]);
+  }, [isSuccess, isSuccessTransaction]);
 
   const updateProvider = async (connector) => {
     const provider = await connector.getProvider();
@@ -349,11 +336,10 @@ export default function Hero() {
 
   const fetchDots = async (contractInstance, web3, account) => {
     if (!contractInstance || !web3) return;
-    console.log("==== contractInstance in fetchDots:", contractInstance);
 
     try {
       const totalUserDotsWei = await contractInstance.methods.earned(account).call();
-      console.log("==== totalStakedWei in fetchDots:", totalUserDotsWei);
+      // console.log("==== totalStakedWei in fetchDots:", totalUserDotsWei);
       let userDots = web3.utils.fromWei(totalUserDotsWei, 'ether');
       // console.log("==== userDots in fetchDots:", userDots);
       if (userDots === '0.') userDots = 0;
@@ -373,7 +359,9 @@ export default function Hero() {
       const balance = await contract.methods.balanceOf(account).call();
 
       let userChomp = web3.utils.fromWei(balance, 'ether');
+      // console.log('===== userChomp in fetchUserChompBalance - p1:', userChomp)
       if (userChomp === '0.') userChomp = 0;
+      // console.log('===== userChomp in fetchUserChompBalance - p2:', userChomp)
       setUserChompBalanceTokens(userChomp);
       return;
     } catch (error) {
@@ -404,12 +392,26 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      writeContract({
-        ...chompCoinConfig,
-        functionName: 'approve',
-        // args: [BigInt(tokenId)],
-        args: [chompLegacyAddress, amountInWei],
-        placeholderData: "Approving Chomp staking"
+      // writeContract({
+      //   ...chompCoinConfig,
+      //   functionName: 'approve',
+      //   args: [chompLegacyAddress, amountInWei],
+      //   placeholderData: "Approving Chomp staking"
+      // })
+      writeContracts({
+        contracts: [
+          {
+            ...chompCoinConfig,
+            functionName: 'approve',
+            args: [chompLegacyAddress, amountInWei],
+            placeholderData: "Approving Chomp staking"
+          },
+        ],
+        capabilities: {
+          paymasterService: {
+            url: rpc,
+          },
+        },
       })
 
       // const requestData = { functionName: 'approve' };
@@ -513,12 +515,27 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      writeContract({
-        ...chompLegacyContractConfig,
-        functionName: 'stake',
-        args: [amountInWei],
+      // writeContract({
+      //   ...chompLegacyContractConfig,
+      //   functionName: 'stake',
+      //   args: [amountInWei],
+      // })
+      writeContracts({
+        contracts: [
+          {
+            ...chompLegacyContractConfig,
+            functionName: 'stake',
+            args: [amountInWei],
+            placeholderData: "Stake Chomp coins"
+          },
+        ],
+        capabilities: {
+          paymasterService: {
+            url: rpc,
+          },
+        },
       })
-      // alert("Stake successful! Transaction hash: " + hash);
+      // // alert("Stake successful! Transaction hash: " + hash);
 
       // const requestData = { functionName: 'stake' };
       // const response = await fetch('/api/sendTransaction', {
@@ -535,11 +552,6 @@ export default function Hero() {
       // console.log('Transaction successful:', approvalResult);
 
 
-      // Update total staked tokens and user staked tokens
-      // await fetchUserStakedTokens(effectiveAccount, contract, web3);
-
-      // await fetchTotalStaked();
-
       // Reset the amount input field
       reset({ amount: '' });
       setStakeLoading(false);
@@ -551,6 +563,11 @@ export default function Hero() {
     }
   };
 
+  // console.log('==== callID', callID)
+  // console.log('==== isSuccess', isSuccess)
+  // console.log('==== isSuccessTransaction', isSuccessTransaction)
+  // console.log("==== userStakedTokens", userStakedTokens);
+
 
   const onWithdraw = async () => {
     if (!account || !contract) {
@@ -558,10 +575,10 @@ export default function Hero() {
         return setWithdrawLoading(false);
     }
 
-    if (amountWithdraw <= 0 || !amountWithdraw || amountWithdraw.length === 0 || isNaN(amountWithdraw) || parseFloat(amountWithdraw) <= 0) {
-      alert("Please enter a valid amount to unstake.");
-      return;
-    }
+    // if (amountWithdraw <= 0 || !amountWithdraw || amountWithdraw.length === 0 || isNaN(amountWithdraw) || parseFloat(amountWithdraw) <= 0) {
+    //   alert("Please enter a valid amount to unstake.");
+    //   return;
+    // }
 
     try {
         setWithdrawLoading(true);
@@ -570,10 +587,25 @@ export default function Hero() {
         // const response = await contract.methods.withdraw(amount).send({ from: account });
         // console.log('===== response in onWithdraw', response)
 
-        writeContract({
-          ...chompLegacyContractConfig,
-          functionName: 'withdraw',
-          args: [amount],
+        // writeContract({
+        //   ...chompLegacyContractConfig,
+        //   functionName: 'withdraw',
+        //   args: [amount],
+        // })
+        writeContracts({
+          contracts: [
+            {
+              ...chompLegacyContractConfig,
+              functionName: 'withdraw',
+              args: [amount],
+              placeholderData: "Unstake Chomp coins"
+            },
+          ],
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
+          },
         })
 
         // console.log('onWithdraw: isPending:',isPending);
@@ -638,20 +670,31 @@ export default function Hero() {
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
 
-        writeContract({
-          ...chompLegacyContractConfig,
-          functionName: 'redeem',
-          args: [tokenId, quantity],
-          // variables: {
-          //   from: account,
-          //   value: requiredEth.toString()
-          // },
-          from: account,
-          value: requiredEth.toString()
+        // writeContract({
+        //   ...chompLegacyContractConfig,
+        //   functionName: 'redeem',
+        //   args: [tokenId, quantity],
+        //   from: account,
+        //   value: requiredEth.toString()
+        // })
+
+        writeContracts({
+          contracts: [
+            {
+              ...chompLegacyContractConfig,
+              functionName: 'redeem',
+              args: [tokenId, quantity],
+              from: account,
+              value: requiredEth.toString(),
+              placeholderData: "Mint Chomp coins"
+            },
+          ],
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
+          },
         })
-        console.log('=== hash onMint', hash)
-        console.log('=== isConfirming onMint', isConfirming)
-        // console.log('=== isSuccess onMint', isSuccess)
 
         // const requestData = { functionName: 'redeem' };
         // const response = await fetch('/api/sendTransaction', {

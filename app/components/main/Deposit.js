@@ -31,6 +31,8 @@ export default function Deposit({
 
   let onSubmit = activeTab === 1 ? onStake : onWithdraw;
 
+  // console.log('=== userStakedTokens', userStakedTokens)
+  // console.log('=== formattedStaked', formattedStaked)
   return (
     <div className="stake shadow__gradient w-full md:w-[550px] bg-dark flex flex-col items-center justify-between opacity-99 sm:mt-6 px-8 pt-[22px] pb-[28px] rounded-[14px]">
       <p 

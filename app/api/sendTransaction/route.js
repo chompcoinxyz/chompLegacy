@@ -35,6 +35,7 @@ import chompCoinABI from '../../../abis/ChompCoinABI.json';
     });
 
     console.log('==== sendTransaction: simpleAccount', simpleAccount)
+    console.log('==== sendTransaction: process.env.NEXT_PUBLIC_PROD', process.env.NEXT_PUBLIC_PROD)
 
     // Create the Paymaster
     // const chain = process.env.NEXT_PUBLIC_PROD === 'true' ? base : baseSepolia;
@@ -87,10 +88,8 @@ import chompCoinABI from '../../../abis/ChompCoinABI.json';
       value: BigInt(0)
     });
     console.log("✅ Transaction successfully sponsored!");
-    console.log(`🔍 View on Etherscan: https://sepolia.basescan.org/tx/${txHash}`);
+    console.log(`🔍 View on Etherscan: https://${process.env.NEXT_PUBLIC_PROD === 'true' ? '' : 'sepolia.' }basescan.org/tx/${txHash}`);
 
-    // return new Response({ message: 'Transaction processed', ok: true, hash: txHash })
-    // return new Response(txHash)
     return Response.json({ txHash })
   } else {
     // Handle any other HTTP method
