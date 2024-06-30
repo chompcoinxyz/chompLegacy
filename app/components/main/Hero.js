@@ -250,8 +250,8 @@ export default function Hero() {
       // if (!provider) return; // Early exit if no provider
       // console.log('==== provider in useffect', provider)
       
-      // const web3 = new Web3(window.ethereum);
-      const web3 = new Web3(rpc);
+      const web3 = new Web3(window.ethereum);
+      // const web3 = new Web3(rpc);
       setWeb3(web3);
       // console.log("======= WEB3 in USEEFFECT:", web3);
 
@@ -349,10 +349,11 @@ export default function Hero() {
 
   const fetchDots = async (contractInstance, web3, account) => {
     if (!contractInstance || !web3) return;
+    console.log("==== contractInstance in fetchDots:", contractInstance);
 
     try {
       const totalUserDotsWei = await contractInstance.methods.earned(account).call();
-      // console.log("==== totalStakedWei in fetchDots:", totalUserDotsWei);
+      console.log("==== totalStakedWei in fetchDots:", totalUserDotsWei);
       let userDots = web3.utils.fromWei(totalUserDotsWei, 'ether');
       // console.log("==== userDots in fetchDots:", userDots);
       if (userDots === '0.') userDots = 0;
