@@ -4,7 +4,7 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ['smmagent.s3.amazonaws.com', 'tan-hilarious-chickadee-235.mypinata.cloud'],
+    domains: ['smmagent.s3.amazonaws.com', 'tan-hilarious-chickadee-235.mypinata.cloud', 'tan-hollow-bear-481.mypinata.cloud'],
   },
 }
 
