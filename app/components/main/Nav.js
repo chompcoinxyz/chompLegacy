@@ -3,7 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import MetamaskMobile from '../elems/MetamaskMobile';
 import ArrowDown from '../elems/ArrowDown';
-import Line from '../elems/Line';
 import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 

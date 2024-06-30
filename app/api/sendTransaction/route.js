@@ -7,7 +7,7 @@ import {
 // import { privateKeyToSimpleSmartAccount } from "permissionless/accounts";
 // import { createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
 import chompLegacyABI from '../../../abis/ChompLegacyABI.json';
-import chompCoinABI from '../../../abis/MockChompCoinABI.json';
+import chompCoinABI from '../../../abis/ChompCoinABI.json';
 
 
 // export default async function handler(req, res) {

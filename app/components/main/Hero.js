@@ -4,20 +4,13 @@ import { useForm } from 'react-hook-form';
 import Web3 from 'web3';
 import ChompLegacyABI from '../../../abis/ChompLegacyABI.json';
 import LegaciesABI from '../../../abis/LegaciesABI.json';
-import MockChompCoinABI from '../../../abis/MockChompCoinABI.json';
-import ConnectWallet from './ConnectWallet';
-import { ConnectAccount } from '@coinbase/onchainkit/wallet'; 
-import { OnchainKitProvider } from '@coinbase/onchainkit';
+import ChompCoinABI from '../../../abis/ChompCoinABI.json';
 import { 
   useConnect, useWaitForTransactionReceipt, 
   useClient, useAccount, 
   useWriteContract, useReadContract, 
   useReadContracts, 
 } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
-// import { baseSepolia } from 'viem/chains';
-import { coinbaseWallet } from 'wagmi/connectors';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
@@ -26,23 +19,7 @@ import StakeButton from '../elems/StakeButton';
 import MetamaskMobile from '../elems/MetamaskMobile';
 import Footer from '../elems/Footer';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
-import wagmiConfig from '../../../config/wagmi';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
-
-import dynamic from 'next/dynamic';
-// const CoinbaseWalletSDKComponent = dynamic(
-//   () => import('@coinbase/wallet-sdk'),
-//   { ssr: false }
-// );
-
-// import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-// const sdk = new CoinbaseWalletSDK({
-//   appName: 'CHOMP Legacy',
-//   appLogoUrl: `${process.env.NEXT_PUBLIC_URL}/img/logo.svg`,
-//   appChainIds: [84532],
-// });
-
-// const cbProvider = sdk.makeWeb3Provider();
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
@@ -69,9 +46,6 @@ export default function Hero() {
     })
 
   // console.log("========= address", address);
-  // console.log("========= client", client);
-  // console.log("========= connectors", connectors);
-
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [contract, setContract] = useState(null);
@@ -79,7 +53,6 @@ export default function Hero() {
   const [legaciesContract, setLegaciesContract] = useState(null);
 
   async function getProvider() {
-    // console.log("========= window.ethereum in getProvider", window.ethereum);
     if (typeof window !== 'undefined' && window.ethereum) {
       return new Web3(window.ethereum);
     } else {
@@ -147,7 +120,6 @@ export default function Hero() {
 
   async function fetchUserStakedTokens(account, contract, web3) {
     if (!contract) return;
-    console.log("fetchUserStakedTokens starting for", account);
 
     try {
         const userStakedWei = await contract.methods.balanceOf(account).call();
@@ -244,7 +216,7 @@ export default function Hero() {
         //     },
         //   };
         // const zoraResponse = await zdk.floorPrice(args);
-        console.log('=== zoraData in useEffect', zoraResponse);
+        // console.log('=== zoraData in useEffect', zoraResponse);
         setZoraData(zoraResponse)
       }
 
@@ -267,126 +239,8 @@ export default function Hero() {
   };
   const chompCoinConfig = {
     address: chompCoinAddress,
-    abi: MockChompCoinABI,
+    abi: ChompCoinABI,
   };
-  // const { data: lastID } = useReadContract({
-  //   ...legaciesContractConfig,
-  //   functionName: 'lastID',
-  //   args:[]
-  // })
-
-  // const { data: totalSupply } = useReadContract({
-  //   ...legaciesContractConfig,
-  //   functionName: 'totalSupply',
-  //   args:[4]
-  // })
-
-  // const { data: maxIssuance } = useReadContract({
-  //   ...legaciesContractConfig,
-  //   functionName: 'maxIssuance',
-  //   args:[4]
-  // })
-  // const { data: uri } = useReadContract({
-  //   ...legaciesContractConfig,
-  //   functionName: 'uri',
-  //   args:[4]
-  // }) 
-
-  // const { 
-  //   data: dataLegacy,
-  //   error,
-  //   isPending
-  // } = useReadContracts({ 
-  //   contracts: [{ 
-  //     ...chompLegacyContractConfig,
-  //     functionName: 'earned',
-  //     args: [address],
-  //   }, { 
-  //     ...chompLegacyContractConfig, 
-  //     functionName: 'balanceOf', 
-  //     args: [address], 
-  //   },
-  // ] 
-  // }) 
-  // const [earned, balanceOf] = dataLegacy || [];
-  
-  // const { data: balanceOfUser } = useReadContract({
-  //   ...chompCoinConfig,
-  //   functionName: 'balanceOf',
-  //   args:[address]
-  // })
-
-  // console.log('======= lastID fetchWagmiData', lastID)
-  // console.log('======= lastID fetchWagmiData', Number(lastID))
-  // console.log('======= totalSupply fetchWagmiData', totalSupply)
-  // console.log('======= totalSupply fetchWagmiData', Number(totalSupply))
-  // console.log('======= maxIssuance fetchWagmiData', maxIssuance)
-  // console.log('======= uri fetchWagmiData', uri)
-  // console.log('======= earned fetchWagmiData', earned)
-  // console.log('======= balanceOf fetchWagmiData', balanceOf)
-  // console.log('======= balanceOfUser fetchWagmiData', balanceOfUser)
-  // console.log('======= userDots fetchWagmiData', userDots)
-
-  // let userDotsData = earned?.result ? web3.utils.fromWei(earned.result, 'ether') : '0';
-  // console.log('==== userDotsData in fetchUserTokensX',userDotsData)
-  // setUserDots(userDotsData);
-
-  // let userStakedTokensData = balanceOf?.result ? web3.utils.fromWei(balanceOf.result, 'ether') : '0';
-  // // if (userStakedTokensData === '0.') userStakedTokensData = 0;
-  // setUserStakedTokens(userStakedTokensData);
-
-  // let userChomp = balanceOfUser ? web3.utils.fromWei(balanceOfUser, 'ether') : 0;
-  // // if (userChomp === '0.') userChomp = 0;
-  // setUserChompBalanceTokens(userChomp);
-
-  
-
-  async function fetchUserTokensX(account) {
-    if (!account) return;
-    // console.log("fetchUserStakedTokens starting for", account);
-
-    try {
-        const { 
-          data: dataLegacy,
-          error,
-          isPending
-        } = useReadContracts({ 
-          contracts: [{ 
-            ...chompLegacyContractConfig,
-            functionName: 'earned',
-            args: [address],
-          }, { 
-            ...chompLegacyContractConfig, 
-            functionName: 'balanceOf', 
-            args: [address], 
-          }] 
-        }) 
-        const [earned, balanceOf] = dataLegacy || [];
-        
-        const { data: balanceOfUser } = useReadContract({
-          ...chompCoinConfig,
-          functionName: 'balanceOf',
-          args:[address]
-        })
-        console.log('==== earned in fetchUserTokensX', earned)
-
-        let userDots = earned?.result ? web3.utils.fromWei(earned.result, 'ether') : '0';
-        console.log('==== userDots in fetchUserTokensX',userDots)
-        setUserDots(userDots);
-     
-        let userStakedTokens = balanceOf?.result ? web3.utils.fromWei(balanceOf.result, 'ether') : '0';
-        // if (userStakedTokens === '0.') userStakedTokens = 0;
-        setUserStakedTokens(userStakedTokens);
-
-        let userChomp = balanceOfUser ? web3.utils.fromWei(balanceOfUser, 'ether') : 0;
-        // if (userChomp === '0.') userChomp = 0;
-        setUserChompBalanceTokens(userChomp);
-
-    } catch (error) {
-        console.error("Error fetching user staked tokens:", error);
-    }
-  }
-
 
   const rpc = new Web3(process.env.NEXT_PUBLIC_RPC_URL);
 
@@ -396,16 +250,15 @@ export default function Hero() {
       // if (!provider) return; // Early exit if no provider
       // console.log('==== provider in useffect', provider)
       
-      const web3 = new Web3(window.ethereum);
-      // const web3 = new Web3(cbProvider);
-      // const web3 = new Web3(rpc);
+      // const web3 = new Web3(window.ethereum);
+      const web3 = new Web3(rpc);
       setWeb3(web3);
-      console.log("======= WEB3 in USEEFFECT:", web3);
+      // console.log("======= WEB3 in USEEFFECT:", web3);
 
       const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
       setContract(contractInstance);
 
-      const tokenContractInstance = new web3.eth.Contract(MockChompCoinABI, chompCoinAddress);
+      const tokenContractInstance = new web3.eth.Contract(ChompCoinABI, chompCoinAddress);
       setTokenContract(tokenContractInstance);
 
       const legaciesContractInstance = new web3.eth.Contract(LegaciesABI, legaciesAddress);
@@ -416,8 +269,7 @@ export default function Hero() {
       // const accounts = await web3.eth.getAccounts();
       // const accounts = [address];
       // const address = accounts[0];
-      // console.log("======= accounts in USEEFFECT:", accounts);
-      console.log("======= address in USEEFFECT:", address);
+      console.log("address:", address);
 
       if (address?.length > 0) {
         fetchAllUserTokens(address, contractInstance, web3, tokenContractInstance);
@@ -435,9 +287,8 @@ export default function Hero() {
   }, [address]);
 
   useEffect(() => {
-    // console.log("======= account in USEEFFECT 2:", account);
     if (!account || !contract || !web3 || !tokenContract) return
-    console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
+    // console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
 
     if (isSuccess) {
       fetchAllUserTokens(account, contract, web3, tokenContract);
@@ -446,9 +297,8 @@ export default function Hero() {
   }, [isSuccess]);
 
   const updateProvider = async (connector) => {
-    // window.ethereum.disconnect();
     const provider = await connector.getProvider();
-    console.log(' ==== connector in updateProvider', connector)
+    // console.log(' ==== connector in updateProvider', connector)
     const web3Instance = new Web3(provider);
     setWeb3(web3Instance);
   };
@@ -466,7 +316,7 @@ export default function Hero() {
   };
 
   const connectWallet = async () => {
-    console.log('====== connectWallet starting...');
+    // console.log('====== connectWallet starting...');
     if (typeof window !== "undefined" && window.ethereum && window.ethereum.isMetaMask) {
     // if (window.ethereum) {
       setIsConnecting(true);
@@ -542,7 +392,7 @@ export default function Hero() {
   
     // const allowance = await tokenContract.allowance(account, chompLegacyAddress);
     const allowance = await tokenContract.methods.allowance(account, chompLegacyAddress).call();
-    console.log('Current allowance:', allowance);
+    // console.log('Current allowance:', allowance);
   
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
@@ -560,8 +410,6 @@ export default function Hero() {
         args: [chompLegacyAddress, amountInWei],
         placeholderData: "Approving Chomp staking"
       })
-
-      console.log('==== hash in ensureTokenApproval', hash)
 
       // const requestData = { functionName: 'approve' };
       // const response = await fetch('/api/sendTransaction', {
@@ -589,8 +437,6 @@ export default function Hero() {
   }
 
   const onApprove = async () => {
-    console.log("== onApprove: Provider being used:", web3.currentProvider);
-    console.log('===== onApprove: account', account)
     // Ensure account is connected, wait for connectWallet if account is not set
     const effectiveAccount = account || await connectWallet();
   
@@ -766,12 +612,7 @@ export default function Hero() {
         setWithdrawLoading(false)
     }
   };
-  // console.log('after onWithdraw: isPending:',isPending);
-  // console.log('after onWithdraw: error:',error);
-  // console.log('after onWithdraw: isConfirming:',isConfirming);
-  // console.log('after onWithdraw: isSuccess:',isSuccess);
-
-
+  
   const onMint = async (tokenId, quantity, index) => {
     if (!account || !contract) {
       alert("Please connect your wallet and ensure the contract is loaded.");
@@ -847,8 +688,7 @@ export default function Hero() {
     }
   };
 
-  console.log('===== account', account);
-  // console.log('===== userNfts', userNfts);
+  // console.log('===== account', account);
  
   return (
     <NotFoundErrorBoundary>

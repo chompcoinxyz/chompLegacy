@@ -13,16 +13,11 @@ const buttonStyles = {
   borderRadius: 11,
 };
 
-export default function CoinbaseCreateWalletButton({ setAccount, setWeb3, updateProvider }) {
+export default function CoinbaseCreateWalletButton({ setAccount, updateProvider }) {
   const { connectors, connect, data } = useConnect();
   const { address, status, accountStatus } = useAccount()
   const connector = connectors[0];
   const { disconnect } = useDisconnect();
-
-  // console.log('==== connector in CoinbaseCreateWalletButton', connector)
-  // console.log('==== address in CoinbaseCreateWalletButton', address)
-  // console.log('==== accountStatus in CoinbaseCreateWalletButton', accountStatus)
-  // console.log('==== status in CoinbaseCreateWalletButton', status)
 
   const createWallet = useCallback(() => {
     const coinbaseWalletConnector = connectors.find(
@@ -30,8 +25,6 @@ export default function CoinbaseCreateWalletButton({ setAccount, setWeb3, update
     );
 
     // console.log('=== coinbaseWalletConnector', coinbaseWalletConnector)
-    // console.log('=== data in hook', data) 
-
     if (coinbaseWalletConnector) {
       connect({ connector: coinbaseWalletConnector });
 
@@ -42,19 +35,14 @@ export default function CoinbaseCreateWalletButton({ setAccount, setWeb3, update
 
   useEffect(() => {
     if (!address) return;
-    // console.log('===== address in useEffect', address)
-    setAccount(address);
 
-    // const web3 = new Web3(provider);
-    // setWeb3(web3);
+    setAccount(address);
   }, [address]);
 
   const handleDisconnectWallet = useCallback(() => {
     disconnect({ connector });
     setAccount(null)
   }, [disconnect]);
-
-  console.log('=== data in coinbase smart wallet', data)
 
   return (
     <>
