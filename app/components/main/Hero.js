@@ -225,8 +225,8 @@ export default function Hero() {
       // const provider = await getProvider(); // This ensures the provider is ready
       // if (!provider) return; // Early exit if no provider
       
-      const web3 = new Web3(window.ethereum);
-      // const web3 = new Web3(rpc);
+      // const web3 = new Web3(window.ethereum);
+      const web3 = new Web3(rpc);
       setWeb3(web3);
       // console.log("======= WEB3 in USEEFFECT:", web3);
 
@@ -261,12 +261,12 @@ export default function Hero() {
     console.log("======= callID in USEEFFECT 2:", callID);
 
     if (isSuccess || isSuccessTransaction) {
-      fetchAllUserTokens(account, contract, web3, tokenContract);
-      fetchUserChompBalance(account, tokenContract, web3);
-      // setTimeout(() => {
-      //   fetchAllUserTokens(account, contract, web3, tokenContract);
-      //   fetchUserChompBalance(account, tokenContract, web3);
-      // }, 4000);
+      // fetchAllUserTokens(account, contract, web3, tokenContract);
+      // fetchUserChompBalance(account, tokenContract, web3);
+      setTimeout(() => {
+        fetchAllUserTokens(account, contract, web3, tokenContract);
+        fetchUserChompBalance(account, tokenContract, web3);
+      }, 4000);
     }
   }, [isSuccess, isSuccessTransaction]);
   // console.log("======= callID after USEEFFECT 2:", callID);
