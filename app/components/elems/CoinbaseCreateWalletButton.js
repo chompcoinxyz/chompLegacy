@@ -24,7 +24,6 @@ export default function CoinbaseCreateWalletButton({ setAccount, updateProvider 
       connector => connector.id === 'coinbaseWalletSDK'
     );
 
-    // console.log('=== coinbaseWalletConnector', coinbaseWalletConnector)
     if (coinbaseWalletConnector) {
       connect({ connector: coinbaseWalletConnector });
 
