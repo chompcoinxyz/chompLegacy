@@ -262,12 +262,15 @@ export default function Hero() {
     console.log("======= callID in USEEFFECT 2:", callID);
 
     if (isSuccess || isSuccessTransaction) {
-      setTimeout(() => {
-        fetchAllUserTokens(account, contract, web3, tokenContract);
-        fetchUserChompBalance(account, tokenContract, web3);
-      }, 4000);
+      fetchAllUserTokens(account, contract, web3, tokenContract);
+      fetchUserChompBalance(account, tokenContract, web3);
+      // setTimeout(() => {
+      //   fetchAllUserTokens(account, contract, web3, tokenContract);
+      //   fetchUserChompBalance(account, tokenContract, web3);
+      // }, 4000);
     }
   }, [isSuccess, isSuccessTransaction]);
+  // console.log("======= callID after USEEFFECT 2:", callID);
 
   const updateProvider = async (connector) => {
     const provider = await connector.getProvider();
