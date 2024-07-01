@@ -219,15 +219,14 @@ export default function Hero() {
     abi: ChompCoinABI,
   };
 
- 
 
   useEffect(() => {
     const loadBlockchainData = async () => {
       // const provider = await getProvider(); // This ensures the provider is ready
       // if (!provider) return; // Early exit if no provider
       
-      // const web3 = new Web3(window.ethereum);
-      const web3 = new Web3(rpc);
+      const web3 = new Web3(window.ethereum);
+      // const web3 = new Web3(rpc);
       setWeb3(web3);
       // console.log("======= WEB3 in USEEFFECT:", web3);
 
@@ -370,6 +369,7 @@ export default function Hero() {
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
       setLoading(false);
+      // alert("Token already approved")
       return true; 
     }
   
