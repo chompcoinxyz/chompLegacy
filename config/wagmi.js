@@ -12,8 +12,8 @@ const metadata = {
 }
 
 const wagmiConfig = createConfig({
-  // chains: [chain],
-  chains: [base, baseSepolia],
+  chains: [chain],
+  // chains: [base, baseSepolia],
   connectors: [
     coinbaseWallet({
       appChainIds: [chain.id],
@@ -25,9 +25,9 @@ const wagmiConfig = createConfig({
   ssr: true,
   transports: {
     // [chain.id]: http(),
-    // [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
-    [base.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
-    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    // [base.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    // [baseSepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
   storage: createStorage({
     storage: cookieStorage
