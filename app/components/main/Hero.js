@@ -386,7 +386,7 @@ export default function Hero() {
   async function ensureTokenApproval(account, amountInWei) {
   
     const allowance = await tokenContract.methods.allowance(account, chompLegacyAddress).call();
-    console.log('=== ensureTokenApproval 1: allowance', allowance)
+    // console.log('=== ensureTokenApproval 1: allowance', allowance)
 
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
@@ -398,34 +398,34 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      // writeContracts({
-      //   contracts: [
-      //     {
-      //       ...chompCoinConfig,
-      //       functionName: 'approve',
-      //       args: [chompLegacyAddress, amountInWei],
-      //       placeholderData: "Approving Chomp staking"
-      //     },
-      //   ],
-      //   capabilities: {
-      //     paymasterService: {
-      //       url: rpc,
-      //     },
-      //   },
-      // })
-
-
-      writeContract({
-        ...chompCoinConfig,
-        functionName: 'approve',
-        args: [chompLegacyAddress, amountInWei],
-        placeholderData: "Approving Chomp staking",
+      writeContracts({
+        contracts: [
+          {
+            ...chompCoinConfig,
+            functionName: 'approve',
+            args: [chompLegacyAddress, amountInWei],
+            placeholderData: "Approving Chomp staking"
+          },
+        ],
         capabilities: {
           paymasterService: {
             url: rpc,
           },
         },
       })
+
+
+      // writeContract({
+      //   ...chompCoinConfig,
+      //   functionName: 'approve',
+      //   args: [chompLegacyAddress, amountInWei],
+      //   placeholderData: "Approving Chomp staking",
+      //   capabilities: {
+      //     paymasterService: {
+      //       url: rpc,
+      //     },
+      //   },
+      // })
 
 
       // return approvalResult.status;
@@ -511,33 +511,33 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      // writeContracts({
-      //   contracts: [
-      //     {
-      //       ...chompLegacyContractConfig,
-      //       functionName: 'stake',
-      //       args: [amountInWei],
-      //       placeholderData: "Stake Chomp coins"
-      //     },
-      //   ],
-      //   capabilities: {
-      //     paymasterService: {
-      //       url: rpc,
-      //     },
-      //   },
-      // })
-
-      writeContract({
-        ...chompLegacyContractConfig,
-        functionName: 'stake',
-        args: [amountInWei],
-        placeholderData: "Stake Chomp coins",
+      writeContracts({
+        contracts: [
+          {
+            ...chompLegacyContractConfig,
+            functionName: 'stake',
+            args: [amountInWei],
+            placeholderData: "Stake Chomp coins"
+          },
+        ],
         capabilities: {
           paymasterService: {
             url: rpc,
           },
         },
       })
+
+      // writeContract({
+      //   ...chompLegacyContractConfig,
+      //   functionName: 'stake',
+      //   args: [amountInWei],
+      //   placeholderData: "Stake Chomp coins",
+      //   capabilities: {
+      //     paymasterService: {
+      //       url: rpc,
+      //     },
+      //   },
+      // })
 
       // // alert("Stake successful! Transaction hash: " + hash);
 
@@ -566,33 +566,33 @@ export default function Hero() {
         // const response = await contract.methods.withdraw(amount).send({ from: account });
         // console.log('===== response in onWithdraw', response)
 
-        // writeContracts({
-        //   contracts: [
-        //     {
-        //       ...chompLegacyContractConfig,
-        //       functionName: 'withdraw',
-        //       args: [amount],
-        //       placeholderData: "Unstake Chomp coins",
-        //     },
-        //   ],
-        //   capabilities: {
-        //     paymasterService: {
-        //       url: rpc,
-        //     },
-        //   },
-        // })
-
-        writeContract({
-          ...chompLegacyContractConfig,
-          functionName: 'withdraw',
-          args: [amount],
-          placeholderData: "Unstake Chomp coins",
+        writeContracts({
+          contracts: [
+            {
+              ...chompLegacyContractConfig,
+              functionName: 'withdraw',
+              args: [amount],
+              placeholderData: "Unstake Chomp coins",
+            },
+          ],
           capabilities: {
             paymasterService: {
               url: rpc,
             },
           },
         })
+
+        // writeContract({
+        //   ...chompLegacyContractConfig,
+        //   functionName: 'withdraw',
+        //   args: [amount],
+        //   placeholderData: "Unstake Chomp coins",
+        //   capabilities: {
+        //     paymasterService: {
+        //       url: rpc,
+        //     },
+        //   },
+        // })
 
         // Alert success message
         // alert("Unstake successful! Your tokens have been returned to your wallet.");
@@ -630,37 +630,37 @@ export default function Hero() {
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
 
-        // writeContracts({
-        //   contracts: [
-        //     {
-        //       ...chompLegacyContractConfig,
-        //       functionName: 'redeem',
-        //       args: [tokenId, quantity],
-        //       from: account,
-        //       value: requiredEth.toString(),
-        //       placeholderData: "Mint Chomp coins"
-        //     },
-        //   ],
-        //   capabilities: {
-        //     paymasterService: {
-        //       url: rpc,
-        //     },
-        //   },
-        // })
-
-        writeContract({
-          ...chompLegacyContractConfig,
-          functionName: 'redeem',
-          args: [tokenId, quantity],
-          from: account,
-          value: requiredEth.toString(),
-          placeholderData: "Mint Chomp coins",
+        writeContracts({
+          contracts: [
+            {
+              ...chompLegacyContractConfig,
+              functionName: 'redeem',
+              args: [tokenId, quantity],
+              from: account,
+              value: requiredEth.toString(),
+              placeholderData: "Mint Chomp coins"
+            },
+          ],
           capabilities: {
             paymasterService: {
               url: rpc,
             },
           },
         })
+
+        // writeContract({
+        //   ...chompLegacyContractConfig,
+        //   functionName: 'redeem',
+        //   args: [tokenId, quantity],
+        //   from: account,
+        //   value: requiredEth.toString(),
+        //   placeholderData: "Mint Chomp coins",
+        //   capabilities: {
+        //     paymasterService: {
+        //       url: rpc,
+        //     },
+        //   },
+        // })
 
         // if (isSuccess) {
         //   // console.log('Minting was successful:', txResponse.transactionHash);
