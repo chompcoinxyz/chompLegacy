@@ -243,8 +243,7 @@ export default function Hero() {
 
   useEffect(() => {
     if (!account || !contract || !web3 || !tokenContract) return
-    console.log("======= isSuccessTransaction in USEEFFECT 2:", isSuccessTransaction);
-    console.log("======= callID in USEEFFECT 2:", callID);
+    // console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
 
     if (isSuccess || isSuccessTransaction) {
       // fetchAllUserTokens(account, contract, web3, tokenContract);
@@ -252,6 +251,11 @@ export default function Hero() {
       setTimeout(() => {
         fetchAllUserTokens(account, contract, web3, tokenContract);
         fetchUserChompBalance(account, tokenContract, web3);
+
+        if (stakeLoading) {
+          setStakeLoading(false);
+          setIsApproved(false);
+        }
 
         if (mintLoading) {
           setNftUSerLoading(true);
@@ -261,11 +265,20 @@ export default function Hero() {
           // alert(`Minting was successful! Transaction Hash: ${callID}`);
         }
       }, 4000);
-
-     
     }
   }, [isSuccess, isSuccessTransaction]);
-  // console.log("======= callID after USEEFFECT 2:", callID);
+
+  useEffect(() => {
+    if (loading && isConfirming) { 
+      setLoading(false);
+      setIsApproved(true);
+    } else if (withdrawLoading && isConfirming) {
+      setWithdrawLoading(false);
+      reset({ amountWithdraw: '' });
+    }    
+  }, [isConfirming, loading, stakeLoading,
+     withdrawLoading, mintLoading
+    ]);
 
   const updateProvider = async (connector) => {
     const provider = await connector.getProvider();
@@ -372,9 +385,9 @@ export default function Hero() {
   
   async function ensureTokenApproval(account, amountInWei) {
   
-    // const allowance = await tokenContract.allowance(account, chompLegacyAddress);
     const allowance = await tokenContract.methods.allowance(account, chompLegacyAddress).call();
-  
+    console.log('=== ensureTokenApproval 1: allowance', allowance)
+
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
       setLoading(false);
@@ -385,21 +398,35 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      writeContracts({
-        contracts: [
-          {
-            ...chompCoinConfig,
-            functionName: 'approve',
-            args: [chompLegacyAddress, amountInWei],
-            placeholderData: "Approving Chomp staking"
-          },
-        ],
+      // writeContracts({
+      //   contracts: [
+      //     {
+      //       ...chompCoinConfig,
+      //       functionName: 'approve',
+      //       args: [chompLegacyAddress, amountInWei],
+      //       placeholderData: "Approving Chomp staking"
+      //     },
+      //   ],
+      //   capabilities: {
+      //     paymasterService: {
+      //       url: rpc,
+      //     },
+      //   },
+      // })
+
+
+      writeContract({
+        ...chompCoinConfig,
+        functionName: 'approve',
+        args: [chompLegacyAddress, amountInWei],
+        placeholderData: "Approving Chomp staking",
         capabilities: {
           paymasterService: {
             url: rpc,
           },
         },
       })
+
 
       // return approvalResult.status;
       return true;
@@ -441,13 +468,13 @@ export default function Hero() {
         return setLoading(false);
       }
   
-      setIsApproved(isApprovedRes);
+      // setIsApproved(isApprovedRes);
   
       // if (isApprovedRes) {
       //   alert("Approved. You can stake CHOMP tokens now.");
       // }
   
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error("Approving error:", error);
       alert("Approve failed. See the console for more information.");
@@ -484,27 +511,40 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      writeContracts({
-        contracts: [
-          {
-            ...chompLegacyContractConfig,
-            functionName: 'stake',
-            args: [amountInWei],
-            placeholderData: "Stake Chomp coins"
-          },
-        ],
+      // writeContracts({
+      //   contracts: [
+      //     {
+      //       ...chompLegacyContractConfig,
+      //       functionName: 'stake',
+      //       args: [amountInWei],
+      //       placeholderData: "Stake Chomp coins"
+      //     },
+      //   ],
+      //   capabilities: {
+      //     paymasterService: {
+      //       url: rpc,
+      //     },
+      //   },
+      // })
+
+      writeContract({
+        ...chompLegacyContractConfig,
+        functionName: 'stake',
+        args: [amountInWei],
+        placeholderData: "Stake Chomp coins",
         capabilities: {
           paymasterService: {
             url: rpc,
           },
         },
       })
+
       // // alert("Stake successful! Transaction hash: " + hash);
 
       // Reset the amount input field
       reset({ amount: '' });
-      setStakeLoading(false);
-      setIsApproved(false);
+      // setStakeLoading(false);
+      // setIsApproved(false);
     } catch (error) {
       console.error("Staking error:", error);
       alert("Staking failed. See the console for more information.");
@@ -526,15 +566,27 @@ export default function Hero() {
         // const response = await contract.methods.withdraw(amount).send({ from: account });
         // console.log('===== response in onWithdraw', response)
 
-        writeContracts({
-          contracts: [
-            {
-              ...chompLegacyContractConfig,
-              functionName: 'withdraw',
-              args: [amount],
-              placeholderData: "Unstake Chomp coins"
-            },
-          ],
+        // writeContracts({
+        //   contracts: [
+        //     {
+        //       ...chompLegacyContractConfig,
+        //       functionName: 'withdraw',
+        //       args: [amount],
+        //       placeholderData: "Unstake Chomp coins",
+        //     },
+        //   ],
+        //   capabilities: {
+        //     paymasterService: {
+        //       url: rpc,
+        //     },
+        //   },
+        // })
+
+        writeContract({
+          ...chompLegacyContractConfig,
+          functionName: 'withdraw',
+          args: [amount],
+          placeholderData: "Unstake Chomp coins",
           capabilities: {
             paymasterService: {
               url: rpc,
@@ -545,9 +597,8 @@ export default function Hero() {
         // Alert success message
         // alert("Unstake successful! Your tokens have been returned to your wallet.");
        
-        setWithdrawLoading(false)
-
-        reset({ amountWithdraw: '' });
+        // setWithdrawLoading(false);
+        // reset({ amountWithdraw: '' });
     } catch (error) {
         console.error("Error withdrawing:", error);
         alert("Failed to withdraw tokens. See console for more details.");
@@ -564,32 +615,46 @@ export default function Hero() {
     try {
         setMintLoading(true);
         setMintIndex(index);
-        console.log('=== index onMint for mintindex', index)
-        console.log('=== tokenId onMint for mintindex', tokenId)
-        console.log('=== quantity onMint for mintindex', quantity)
-        console.log('=== account onMint for mintindex', account)
-        console.log('=== rpc onMint for mintindex', rpc)
+        // console.log('=== index onMint for mintindex', index)
+        // console.log('=== tokenId onMint for mintindex', tokenId)
+        // console.log('=== quantity onMint for mintindex', quantity)
+        // console.log('=== account onMint for mintindex', account)
+        // console.log('=== rpc onMint for mintindex', rpc)
         
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
-        console.log('=== ethPrice onMint', ethPrice)
+        // console.log('=== ethPrice onMint', ethPrice)
         
         const requiredEth = BigInt(ethPrice) * BigInt(quantity);
-        console.log('=== requiredEth onMint', requiredEth)
+        // console.log('=== requiredEth onMint', requiredEth)
 
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
 
-        writeContracts({
-          contracts: [
-            {
-              ...chompLegacyContractConfig,
-              functionName: 'redeem',
-              args: [tokenId, quantity],
-              from: account,
-              value: requiredEth.toString(),
-              placeholderData: "Mint Chomp coins"
-            },
-          ],
+        // writeContracts({
+        //   contracts: [
+        //     {
+        //       ...chompLegacyContractConfig,
+        //       functionName: 'redeem',
+        //       args: [tokenId, quantity],
+        //       from: account,
+        //       value: requiredEth.toString(),
+        //       placeholderData: "Mint Chomp coins"
+        //     },
+        //   ],
+        //   capabilities: {
+        //     paymasterService: {
+        //       url: rpc,
+        //     },
+        //   },
+        // })
+
+        writeContract({
+          ...chompLegacyContractConfig,
+          functionName: 'redeem',
+          args: [tokenId, quantity],
+          from: account,
+          value: requiredEth.toString(),
+          placeholderData: "Mint Chomp coins",
           capabilities: {
             paymasterService: {
               url: rpc,
@@ -597,15 +662,15 @@ export default function Hero() {
           },
         })
 
-        if (isSuccess) {
-          // console.log('Minting was successful:', txResponse.transactionHash);
+        // if (isSuccess) {
+        //   // console.log('Minting was successful:', txResponse.transactionHash);
 
-          setActiveLegacyTab(2);
-          // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
-        } 
+        //   setActiveLegacyTab(2);
+        //   // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
+        // } 
 
         // setMintLoading(false)
-        setMintIndex(99)
+        // setMintIndex(99)
         return console.log('NFT minted successfully!');
     } catch (error) {
         console.error("Error on mint:", error);

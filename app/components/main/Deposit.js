@@ -78,13 +78,15 @@ export default function Deposit({
               loading={loading}
               text={!loading ? 'Approve' : 'Pending...'}
               isDisabledStyles={loading || isApproved}
+              // isDisabledStyles={loading}
             />
             <StakeButton 
               onClick={handleSubmit(onStake)}
               disabled={!isApproved || loading ? true : !amount || amount.length === 0 || isNaN(amount) || parseFloat(amount) <= 0 ? true : false}
               loading={stakeLoading}
               text={!stakeLoading ? 'Stake' : 'Pending...'}
-              isDisabledStyles={!amount || amount.length === 0 || isNaN(amount) || parseFloat(amount) <= 0 || !isApproved || stakeLoading}
+              // isDisabledStyles={!amount || amount.length === 0 || isNaN(amount) || parseFloat(amount) <= 0 || !isApproved || stakeLoading}
+              isDisabledStyles={!isApproved || stakeLoading}
             />
           </>
         ) : (
