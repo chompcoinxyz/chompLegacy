@@ -1,5 +1,10 @@
 import './globals.css';
 import OnchainProviders from './components/providers/OnchainProviders';
+// import { createWeb3Modal } from '@web3modal/wagmi/react'
+// import { headers } from 'next/headers'
+// import { cookieToInitialState } from 'wagmi';
+// import wagmiConfig from './app/components/config/wagmi';
+
 
 export const metadata = {
   title: 'CHOMP Legacy',
@@ -19,6 +24,7 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
+  // const initialState = cookieToInitialState(wagmiConfig, headers().get('cookie'))
   return (
     <html lang="en" className={'bg-bgMain'}>
       <body>

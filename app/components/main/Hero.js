@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Web3 from 'web3';
-import ChompLegacyABI from '../../../abis/ChompLegacyABI.json';
-import LegaciesABI from '../../../abis/LegaciesABI.json';
-import ChompCoinABI from '../../../abis/ChompCoinABI.json';
+// import ChompLegacyABI from '../../../abis/ChompLegacyABI.json';
+// import LegaciesABI from '../../../abis/LegaciesABI.json';
+// import ChompCoinABI from '../../../abis/ChompCoinABI.json';
+import { ChompLegacyABI, LegaciesABI, ChompCoinABI } from '../../../abis/getABI';
 import { 
   useWaitForTransactionReceipt, 
   useAccount, 
@@ -254,6 +255,7 @@ export default function Hero() {
     }
     loadBlockchainData();
   }, [address]);
+  // console.log("======= rpc:", rpc);
 
   useEffect(() => {
     if (!account || !contract || !web3 || !tokenContract) return
@@ -266,7 +268,17 @@ export default function Hero() {
       setTimeout(() => {
         fetchAllUserTokens(account, contract, web3, tokenContract);
         fetchUserChompBalance(account, tokenContract, web3);
+
+        if (mintLoading) {
+          setNftUSerLoading(true);
+          fetchNFTData(legaciesContract, address);
+          setActiveLegacyTab(2);
+          setMintLoading(false);
+          // alert(`Minting was successful! Transaction Hash: ${callID}`);
+        }
       }, 4000);
+
+     
     }
   }, [isSuccess, isSuccessTransaction]);
   // console.log("======= callID after USEEFFECT 2:", callID);
@@ -556,11 +568,16 @@ export default function Hero() {
         setMintLoading(true);
         setMintIndex(index);
         console.log('=== index onMint for mintindex', index)
+        console.log('=== tokenId onMint for mintindex', tokenId)
+        console.log('=== quantity onMint for mintindex', quantity)
+        console.log('=== account onMint for mintindex', account)
+        console.log('=== rpc onMint for mintindex', rpc)
         
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
+        console.log('=== ethPrice onMint', ethPrice)
         
         const requiredEth = BigInt(ethPrice) * BigInt(quantity);
-        // console.log('=== requiredEth onMint', requiredEth)
+        console.log('=== requiredEth onMint', requiredEth)
 
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
@@ -590,7 +607,7 @@ export default function Hero() {
           // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
         } 
 
-        setMintLoading(false)
+        // setMintLoading(false)
         setMintIndex(99)
         return console.log('NFT minted successfully!');
     } catch (error) {
