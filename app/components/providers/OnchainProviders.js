@@ -19,7 +19,8 @@ createWeb3Modal({
   name: 'CHOMP Legacy',
   description: 'Mint Chomp Legacy NFTs by Staking Chomp',
   url: 'https://chomplegacy.com',
-  icons: [`${process.env.NEXT_PUBLIC_URL}/applie-icon.png`]
+  icons: [`${process.env.NEXT_PUBLIC_URL}/applie-icon.png`],
+  origin: 'http://localhost:3000',
 })
 
 // const initialState = cookieToInitialState(wagmiConfig, headers().get('cookie'))
