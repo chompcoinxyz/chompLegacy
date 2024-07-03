@@ -7,7 +7,7 @@ import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 
-export default function Nav({ connectWallet, account, setAccount, updateProvider, isTest=false }) {
+export default function Nav({ connectWallet, account, setAccount, updateProvider, }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { open, close } = useWeb3Modal()
@@ -74,8 +74,7 @@ export default function Nav({ connectWallet, account, setAccount, updateProvider
               <button
                 type="submit" 
                 // onClick={connectWallet}
-                // onClick={open}
-                onClick={!isTest ? connectWallet : open}
+                onClick={open}
                 className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
               >
               <WalletIcon />

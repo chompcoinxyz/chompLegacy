@@ -2,7 +2,7 @@ import { createConfig, http, cookieStorage, createStorage } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet, walletConnect } from 'wagmi/connectors';
 const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
-const projectId = process.env.NEXT_PUBLIC_WALLET_COINBASE_PROJECT_ID;
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID;
 console.log('==== chain', chain)
 console.log('==== projectId', projectId);
 

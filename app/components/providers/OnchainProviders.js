@@ -9,7 +9,7 @@ import { createWeb3Modal } from '@web3modal/wagmi/react'
 import wagmiConfig from '../../../config/wagmi';
 
 const queryClient = new QueryClient();
-const projectId = process.env.NEXT_PUBLIC_WALLET_COINBASE_PROJECT_ID;
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID;
 const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
 
 createWeb3Modal({
