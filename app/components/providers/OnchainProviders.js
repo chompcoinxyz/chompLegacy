@@ -19,13 +19,9 @@ createWeb3Modal({
   description: 'Mint Chomp Legacy NFTs by Staking Chomp',
   url: 'https://chomplegacy.com',
   icons: [`${process.env.NEXT_PUBLIC_URL}/applie-icon.png`],
-  // themeVariables: {
-  //   // '--w3m-color-mix': 'red',
-  //   // '--w3m-color-mix-strength': 100,
-  //   // '--w3m-font-size-master': '12px',
-  //   '--w3m-border-radius-master': '8px',
-  //   '--w3m-accent': '#ffffff',
-  // },
+  themeVariables: {
+    '--w3m-z-index': 100000,
+  },
 })
 
 function OnchainProviders({ children, }) {
