@@ -18,7 +18,7 @@ const wagmiConfig = createConfig({
     coinbaseWallet({
       appChainIds: [chain.id],
       appName: 'CHOMP Legacy',
-      preference: 'smartWalletOnly'
+      // preference: 'smartWalletOnly'
     }),
     walletConnect({ projectId, metadata, showQrModal: false }),
   ],
