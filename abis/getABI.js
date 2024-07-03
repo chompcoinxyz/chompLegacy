@@ -11,5 +11,3 @@ const isProd = process.env.NEXT_PUBLIC_PROD === "true";
 export const ChompLegacyABI = isProd ? ChompLegacyABIProd : ChompLegacyABIDev;
 export const LegaciesABI = isProd ? LegaciesABIProd : LegaciesABIDev;
 export const ChompCoinABI = isProd ? ChompCoinABIProd : ChompCoinABIDev;
-
-console.log('==== isProd', isProd)

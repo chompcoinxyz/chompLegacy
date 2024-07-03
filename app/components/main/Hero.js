@@ -21,6 +21,7 @@ import MetamaskMobile from '../elems/MetamaskMobile';
 import Footer from '../elems/Footer';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
+import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
@@ -49,19 +50,6 @@ export default function Hero() {
   const [contract, setContract] = useState(null);
   const [tokenContract, setTokenContract] = useState(null);
   const [legaciesContract, setLegaciesContract] = useState(null);
-
-  async function getProvider() {
-    if (typeof window !== 'undefined' && window.ethereum) {
-      return new Web3(window.ethereum);
-    } else {
-      // Mobile
-      console.log("MetaMask not detected");
-
-      setIsMobileWithoutMetamask(true)
-    }
-  }
-
-  // const [totalStaked, setTotalStaked] = useState(null); 
   const [activeTab, setActiveTab] = useState(1);
   const [activeLegacyTab, setActiveLegacyTab] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -96,6 +84,8 @@ export default function Hero() {
     } 
   const zdk = new ZDK(args);
 
+  const { open } = useWeb3Modal();
+
   async function fetchUserStakedTokens(account, contract, web3) {
     if (!contract) return;
 
@@ -114,8 +104,6 @@ export default function Hero() {
     try {
       const lastId = await contract.methods.lastID().call();
       const lastIdNumber = Number(lastId);
-      // console.log('==== lastIdNumber in fetchNFTData', lastIdNumber)
-      // console.log('====== wallet in fetchNFTData', wallet)
 
       const nfts = [];
       const userNFTs = [];
@@ -632,7 +620,8 @@ export default function Hero() {
                   <>
                     <div className="w-[300px] hidden sm:block">
                       <StakeButton 
-                        onClick={connectWallet}
+                        // onClick={connectWallet}
+                        onClick={() => open()}
                         disabled={isConnecting}
                         loading={loading}
                         text="Connect Wallet"

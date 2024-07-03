@@ -39,7 +39,8 @@ export default function CoinbaseCreateWalletButton({ setAccount, updateProvider 
   }, [address]);
 
   const handleDisconnectWallet = useCallback(() => {
-    disconnect({ connector });
+    // disconnect({ connector });
+    disconnect();
     setAccount(null)
   }, [disconnect]);
 

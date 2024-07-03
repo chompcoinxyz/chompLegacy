@@ -5,14 +5,13 @@ import MetamaskMobile from '../elems/MetamaskMobile';
 import ArrowDown from '../elems/ArrowDown';
 import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
-import dynamic from 'next/dynamic';
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 
 export default function Nav({ connectWallet, account, setAccount, updateProvider, }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const { open, close } = useWeb3Modal()
+    const { open } = useWeb3Modal()
 
    
     function handleNavigationClick() {
@@ -41,7 +40,7 @@ export default function Nav({ connectWallet, account, setAccount, updateProvider
           <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-col lg:hidden absolute top-[100px] right-0 rounded shadow-xl mx-auto p-4 bg-white z-20`} id="mobile-menu">
               <div className="mb-4 text-center"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
               {!account ? (
-                  <MetamaskMobile/>
+                  <MetamaskMobile />
               ) : (
                 <>
                   <button
@@ -76,18 +75,12 @@ export default function Nav({ connectWallet, account, setAccount, updateProvider
             {!account ? (
               <button
                 type="submit" 
-                // onClick={connectWallet}
-                onClick={open}
+                onClick={() => open()}
                 className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
               >
                 <WalletIcon />
                 <span className="ml-2 font-bold text-[18px]">Connect</span>
               </button>
-              // <div
-              //   className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
-              // >
-              //   <w3m-button />
-              // </div>
             ) : (
               <button
                 className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}

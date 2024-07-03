@@ -173,6 +173,13 @@ data-testid[ockConnectAccountButtonInner] {
   z-index: 1;
 } */
 
+.w3btn w3m-button {
+  height: 54px !important;
+  border-radius: 11px !important;
+  background-color: white !important;
+  color: black !important;
+}
+
 
 @media (max-width: 768px) {
   .shadow__gradient {
@@ -182,3 +189,4 @@ data-testid[ockConnectAccountButtonInner] {
     margin-top: 40px
   }
 }
+

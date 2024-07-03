@@ -1,10 +1,9 @@
 import './globals.css';
 import OnchainProviders from './components/providers/OnchainProviders';
-// import { createWeb3Modal } from '@web3modal/wagmi/react'
+
 // import { headers } from 'next/headers'
 // import { cookieToInitialState } from 'wagmi';
-// import wagmiConfig from './app/components/config/wagmi';
-
+// import wagmiConfig from '../config/wagmi';
 
 export const metadata = {
   title: 'CHOMP Legacy',
