@@ -1,15 +1,13 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import Web3 from 'web3';
-// import ChompLegacyABI from '../../../abis/ChompLegacyABI.json';
-// import LegaciesABI from '../../../abis/LegaciesABI.json';
-// import ChompCoinABI from '../../../abis/ChompCoinABI.json';
 import { ChompLegacyABI, LegaciesABI, ChompCoinABI } from '../../../abis/getABI';
 import { 
   useWaitForTransactionReceipt, 
   useAccount, 
   useWriteContract, 
+  useConnect,
 } from 'wagmi';
 import { useWriteContracts } from 'wagmi/experimental';
 import Minting from './Minting';
@@ -21,7 +19,6 @@ import MetamaskMobile from '../elems/MetamaskMobile';
 import Footer from '../elems/Footer';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
-import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
@@ -37,6 +34,7 @@ export default function Hero() {
   const amount = watch('amount');
   const amountWithdraw = watch('amountWithdraw');
 
+  const { connectors, connect } = useConnect();
   const { address } = useAccount();
   const { data: hash, writeContract, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } =
@@ -83,8 +81,6 @@ export default function Hero() {
       apiKey: process.env.NEXT_PUBLIC_ZORA_KEY 
     } 
   const zdk = new ZDK(args);
-
-  const { open } = useWeb3Modal();
 
   async function fetchUserStakedTokens(account, contract, web3) {
     if (!contract) return;
@@ -289,6 +285,19 @@ export default function Hero() {
       console.error('Failed to fetch user tokens:', error);
     }
   };
+
+  const createWallet = useCallback(() => {
+    const coinbaseWalletConnector = connectors.find(
+      connector => connector.id === 'coinbaseWalletSDK'
+    );
+
+    if (coinbaseWalletConnector) {
+      connect({ connector: coinbaseWalletConnector });
+
+      updateProvider(coinbaseWalletConnector)
+    }
+
+  }, [connectors, connect]);
 
   const connectWallet = async () => {
     if (typeof window !== "undefined" && window.ethereum && window.ethereum.isMetaMask) {
@@ -620,11 +629,10 @@ export default function Hero() {
                   <>
                     <div className="w-[300px] hidden sm:block">
                       <StakeButton 
-                        // onClick={connectWallet}
-                        onClick={() => open()}
+                        onClick={() => createWallet()}
                         disabled={isConnecting}
                         loading={loading}
-                        text="Connect Wallet"
+                        text="Create Wallet"
                         isDisabledStyles={''}
                       />
                     </div>
