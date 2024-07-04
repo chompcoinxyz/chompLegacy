@@ -402,7 +402,7 @@ export default function Hero() {
       console.log('Token already approved');
       setLoading(false);
       setIsApproved(true);
-      // alert("Token already approved")
+      alert("Token already approved")
       return true; 
     }
   

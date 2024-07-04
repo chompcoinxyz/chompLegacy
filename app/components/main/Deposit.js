@@ -29,12 +29,15 @@ export default function Deposit({
 
   return (
     <div className="stake shadow__gradient w-full md:w-[550px] bg-dark flex flex-col items-center justify-between opacity-99 sm:mt-6 px-8 pt-[22px] pb-[28px] rounded-[14px]">
-      <p 
-        className="w-full text-[15px] font-medium text-primary text-right uppercase mb-4 cursor-pointer hover:opacity-80"
-        onClick={() => setActiveTab(activeTab === 1 ? 2 : 1)}
-      >
-        {activeTab === 1 ? "Unstake" : "Stake"}
-      </p>
+      <div className="w-full flex justify-end">
+        <p 
+          className="w-[80px] text-[15px] font-medium text-primary text-right uppercase mb-4 cursor-pointer hover:opacity-80"
+          onClick={() => setActiveTab(activeTab === 1 ? 2 : 1)}
+        >
+          {activeTab === 1 ? "Unstake" : "Stake"}
+        </p>
+      </div>
+      
       <form onSubmit={handleSubmit(onSubmit)} className="w-full">
         <div className='sm:h-[60px] flex flex-col sm:flex-row justify-between items-start sm:items-center mx-4 sm:mx-0'>
           <p className="w-full sm:w-[71px] text-white font-medium text-[19px] flex flex-row items-center justify-between mb-4 sm:mb-0">
