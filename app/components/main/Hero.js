@@ -35,13 +35,16 @@ export default function Hero() {
   const amountWithdraw = watch('amountWithdraw');
 
   const { connectors, connect } = useConnect();
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const { data: hash, writeContract, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } =
     useWaitForTransactionReceipt({
       hash,
     });
   const { data: callID, writeContracts, isSuccess: isSuccessTransaction } = useWriteContracts();
+  
+  // console.log('===== connector', connector)
+  // console.log('===== connector?.id', connector?.id)
 
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -269,6 +272,8 @@ export default function Hero() {
   }, [isSuccess, isSuccessTransaction]);
 
   useEffect(() => {
+    // console.log("======= isConfirming in USEEFFECT 3:", isConfirming);
+
     if (loading && isConfirming) { 
       setLoading(false);
       setIsApproved(true);
@@ -276,9 +281,14 @@ export default function Hero() {
       setWithdrawLoading(false);
       reset({ amountWithdraw: '' });
     }    
-  }, [isConfirming, loading, stakeLoading,
-     withdrawLoading, mintLoading
-    ]);
+  }, [isConfirming, loading, stakeLoading, withdrawLoading, mintLoading]);
+    
+  // console.log("==== loading after effects:", loading);
+  // console.log("==== isConfirming after effects:", isConfirming);
+  // console.log("==== isSuccess after effects:", isSuccess);
+  // console.log("==== isPending after effects:", isPending);
+  // console.log("==== error after effects:", error);
+
 
   const updateProvider = async (connector) => {
     const provider = await connector.getProvider();
@@ -391,6 +401,7 @@ export default function Hero() {
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
       setLoading(false);
+      setIsApproved(true);
       // alert("Token already approved")
       return true; 
     }
@@ -413,7 +424,6 @@ export default function Hero() {
           },
         },
       })
-
 
       // writeContract({
       //   ...chompCoinConfig,
@@ -447,10 +457,6 @@ export default function Hero() {
       return; // Stop execution if no account is available after trying to connect
     }
   
-    if (!account) {
-      await connectWallet();
-    }
-  
     const amount = watch("amount");
     if (amount <= 0) {
       alert("Please enter a valid amount to stake.");
@@ -465,16 +471,18 @@ export default function Hero() {
       const isApprovedRes = await ensureTokenApproval(effectiveAccount, amountInWei);
       if (!isApprovedRes) {
         console.log('Token approval failed or was denied by the user');
-        return setLoading(false);
+        setLoading(false);
+        setIsApproved(false);
+        return;
       }
-  
-      // setIsApproved(isApprovedRes);
   
       // if (isApprovedRes) {
       //   alert("Approved. You can stake CHOMP tokens now.");
       // }
+
+      setIsApproved(isApprovedRes);
+      setLoading(false);
   
-      // setLoading(false);
     } catch (error) {
       console.error("Approving error:", error);
       alert("Approve failed. See the console for more information.");
@@ -543,8 +551,8 @@ export default function Hero() {
 
       // Reset the amount input field
       reset({ amount: '' });
-      // setStakeLoading(false);
-      // setIsApproved(false);
+      setStakeLoading(false);
+      setIsApproved(false);
     } catch (error) {
       console.error("Staking error:", error);
       alert("Staking failed. See the console for more information.");
@@ -597,8 +605,8 @@ export default function Hero() {
         // Alert success message
         // alert("Unstake successful! Your tokens have been returned to your wallet.");
        
-        // setWithdrawLoading(false);
-        // reset({ amountWithdraw: '' });
+        setWithdrawLoading(false);
+        reset({ amountWithdraw: '' });
     } catch (error) {
         console.error("Error withdrawing:", error);
         alert("Failed to withdraw tokens. See console for more details.");
@@ -669,9 +677,10 @@ export default function Hero() {
         //   // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
         // } 
 
-        // setMintLoading(false)
-        // setMintIndex(99)
-        return console.log('NFT minted successfully!');
+        setMintLoading(false)
+        setMintIndex(99)
+        // return console.log('NFT minted successfully!');
+        return;
     } catch (error) {
         console.error("Error on mint:", error);
         alert("Failed to mint NFTs. See console for more details.");

@@ -93,10 +93,10 @@ export default function Deposit({
           <>
             <StakeButton 
               onClick={onWithdraw}
-              disabled={!withdrawLoading && userStakedTokens > 0 || !amountWithdraw || amountWithdraw.length === 0 || isNaN(amountWithdraw) || parseFloat(amountWithdraw) <= 0 ? false : true}
+              disabled={!withdrawLoading || !amountWithdraw || amountWithdraw.length === 0 || isNaN(amountWithdraw) || parseFloat(amountWithdraw) <= 0 ? false : true}
               loading={withdrawLoading}
               text={!withdrawLoading ? 'Unstake' : 'Pending...'}
-              isDisabledStyles={withdrawLoading || userStakedTokens <= 0}
+              isDisabledStyles={withdrawLoading}
             />
             <div className="h-[50px]"></div>
           </>
