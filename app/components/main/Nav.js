@@ -13,11 +13,10 @@ export default function Nav({ connectWallet, account, setAccount, updateProvider
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { open } = useWeb3Modal()
 
-   
     function handleNavigationClick() {
-        if (window && window.innerWidth < 1024) {
-            setIsMobileMenuOpen(false);
-        }
+      if (window && window.innerWidth < 1024) {
+          setIsMobileMenuOpen(false);
+      }
     }
 
     return (

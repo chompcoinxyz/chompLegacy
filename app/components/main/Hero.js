@@ -280,7 +280,7 @@ export default function Hero() {
     } else if (withdrawLoading && isConfirming) {
       setWithdrawLoading(false);
       reset({ amountWithdraw: '' });
-    }    
+    }
   }, [isConfirming, loading, stakeLoading, withdrawLoading, mintLoading]);
     
   // console.log("==== loading after effects:", loading);
@@ -409,35 +409,37 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      writeContracts({
-        contracts: [
-          {
-            ...chompCoinConfig,
-            functionName: 'approve',
-            args: [chompLegacyAddress, amountInWei],
-            placeholderData: "Approving Chomp staking"
+      if (connector?.name !== 'MetaMask') {
+        writeContracts({
+          contracts: [
+            {
+              ...chompCoinConfig,
+              functionName: 'approve',
+              args: [chompLegacyAddress, amountInWei],
+              placeholderData: "Approving Chomp staking"
+            },
+          ],
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
           },
-        ],
-        capabilities: {
-          paymasterService: {
-            url: rpc,
+        })
+      } else {
+        // Metamask
+        writeContract({
+          ...chompCoinConfig,
+          functionName: 'approve',
+          args: [chompLegacyAddress, amountInWei],
+          placeholderData: "Approving Chomp staking",
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
           },
-        },
-      })
-
-      // writeContract({
-      //   ...chompCoinConfig,
-      //   functionName: 'approve',
-      //   args: [chompLegacyAddress, amountInWei],
-      //   placeholderData: "Approving Chomp staking",
-      //   capabilities: {
-      //     paymasterService: {
-      //       url: rpc,
-      //     },
-      //   },
-      // })
-
-
+        })
+      }
+      
       // return approvalResult.status;
       return true;
     } catch (error) {
@@ -480,8 +482,10 @@ export default function Hero() {
       //   alert("Approved. You can stake CHOMP tokens now.");
       // }
 
-      setIsApproved(isApprovedRes);
-      setLoading(false);
+      if (connector?.name !== 'MetaMask') {
+        setIsApproved(isApprovedRes);
+        setLoading(false);
+      }
   
     } catch (error) {
       console.error("Approving error:", error);
@@ -519,40 +523,48 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      writeContracts({
-        contracts: [
-          {
-            ...chompLegacyContractConfig,
-            functionName: 'stake',
-            args: [amountInWei],
-            placeholderData: "Stake Chomp coins"
+   
+      if (connector?.name !== 'MetaMask') {
+        writeContracts({
+          contracts: [
+            {
+              ...chompLegacyContractConfig,
+              functionName: 'stake',
+              args: [amountInWei],
+              placeholderData: "Stake Chomp coins"
+            },
+          ],
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
           },
-        ],
-        capabilities: {
-          paymasterService: {
-            url: rpc,
+        })
+
+        setStakeLoading(false);
+        setIsApproved(false);
+      } else {
+        // Metamask
+        writeContract({
+          ...chompLegacyContractConfig,
+          functionName: 'stake',
+          args: [amountInWei],
+          placeholderData: "Stake Chomp coins",
+          capabilities: {
+            paymasterService: {
+              url: rpc,
+            },
           },
-        },
-      })
+        })
+      }
 
-      // writeContract({
-      //   ...chompLegacyContractConfig,
-      //   functionName: 'stake',
-      //   args: [amountInWei],
-      //   placeholderData: "Stake Chomp coins",
-      //   capabilities: {
-      //     paymasterService: {
-      //       url: rpc,
-      //     },
-      //   },
-      // })
-
+    
       // // alert("Stake successful! Transaction hash: " + hash);
 
       // Reset the amount input field
       reset({ amount: '' });
-      setStakeLoading(false);
-      setIsApproved(false);
+      // setStakeLoading(false);
+      // setIsApproved(false);
     } catch (error) {
       console.error("Staking error:", error);
       alert("Staking failed. See the console for more information.");
@@ -574,33 +586,38 @@ export default function Hero() {
         // const response = await contract.methods.withdraw(amount).send({ from: account });
         // console.log('===== response in onWithdraw', response)
 
-        writeContracts({
-          contracts: [
-            {
-              ...chompLegacyContractConfig,
-              functionName: 'withdraw',
-              args: [amount],
-              placeholderData: "Unstake Chomp coins",
-            },
-          ],
-          capabilities: {
-            paymasterService: {
-              url: rpc,
-            },
-          },
-        })
 
-        // writeContract({
-        //   ...chompLegacyContractConfig,
-        //   functionName: 'withdraw',
-        //   args: [amount],
-        //   placeholderData: "Unstake Chomp coins",
-        //   capabilities: {
-        //     paymasterService: {
-        //       url: rpc,
-        //     },
-        //   },
-        // })
+        if (connector?.name !== 'MetaMask') {
+          writeContracts({
+            contracts: [
+              {
+                ...chompLegacyContractConfig,
+                functionName: 'withdraw',
+                args: [amount],
+                placeholderData: "Unstake Chomp coins",
+              },
+            ],
+            capabilities: {
+              paymasterService: {
+                url: rpc,
+              },
+            },
+          })
+        } else {
+          // Metamask
+          writeContract({
+            ...chompLegacyContractConfig,
+            functionName: 'withdraw',
+            args: [amount],
+            placeholderData: "Unstake Chomp coins",
+            capabilities: {
+              paymasterService: {
+                url: rpc,
+              },
+            },
+          })
+        }
+
 
         // Alert success message
         // alert("Unstake successful! Your tokens have been returned to your wallet.");
@@ -624,52 +641,52 @@ export default function Hero() {
         setMintLoading(true);
         setMintIndex(index);
         // console.log('=== index onMint for mintindex', index)
-        // console.log('=== tokenId onMint for mintindex', tokenId)
-        // console.log('=== quantity onMint for mintindex', quantity)
-        // console.log('=== account onMint for mintindex', account)
-        // console.log('=== rpc onMint for mintindex', rpc)
         
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
-        // console.log('=== ethPrice onMint', ethPrice)
-        
         const requiredEth = BigInt(ethPrice) * BigInt(quantity);
-        // console.log('=== requiredEth onMint', requiredEth)
 
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
 
-        writeContracts({
-          contracts: [
-            {
-              ...chompLegacyContractConfig,
-              functionName: 'redeem',
-              args: [tokenId, quantity],
-              from: account,
-              value: requiredEth.toString(),
-              placeholderData: "Mint Chomp coins"
+        if (connector?.name !== 'MetaMask') {
+          writeContracts({
+            contracts: [
+              {
+                ...chompLegacyContractConfig,
+                functionName: 'redeem',
+                args: [tokenId, quantity],
+                from: account,
+                value: requiredEth.toString(),
+                placeholderData: "Mint Chomp coins"
+              },
+            ],
+            capabilities: {
+              paymasterService: {
+                url: rpc,
+              },
             },
-          ],
-          capabilities: {
-            paymasterService: {
-              url: rpc,
+          })
+
+          setMintLoading(false)
+          setMintIndex(99)
+        } else {
+          // Metamask
+          writeContract({
+            ...chompLegacyContractConfig,
+            functionName: 'redeem',
+            args: [tokenId, quantity],
+            from: account,
+            value: requiredEth.toString(),
+            placeholderData: "Mint Chomp coins",
+            capabilities: {
+              paymasterService: {
+                url: rpc,
+              },
             },
-          },
-        })
+          })
+        }
 
-        // writeContract({
-        //   ...chompLegacyContractConfig,
-        //   functionName: 'redeem',
-        //   args: [tokenId, quantity],
-        //   from: account,
-        //   value: requiredEth.toString(),
-        //   placeholderData: "Mint Chomp coins",
-        //   capabilities: {
-        //     paymasterService: {
-        //       url: rpc,
-        //     },
-        //   },
-        // })
-
+  
         // if (isSuccess) {
         //   // console.log('Minting was successful:', txResponse.transactionHash);
 
@@ -677,14 +694,14 @@ export default function Hero() {
         //   // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
         // } 
 
-        setMintLoading(false)
-        setMintIndex(99)
+        // setMintLoading(false)
+        // setMintIndex(99)
         // return console.log('NFT minted successfully!');
         return;
     } catch (error) {
         console.error("Error on mint:", error);
         alert("Failed to mint NFTs. See console for more details.");
-        setMintLoading(false)
+        setMintLoading(false);
     }
   };
 
