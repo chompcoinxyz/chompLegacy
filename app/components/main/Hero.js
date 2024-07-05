@@ -409,7 +409,7 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      if (connector?.name !== 'MetaMask' && connector?.name !== 'Coinbase Wallet') {
+      if (connector?.name !== 'MetaMask') {
         writeContracts({
           contracts: [
             {
@@ -523,7 +523,7 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      if (connector?.name !== 'MetaMask' && connector?.name !== 'Coinbase Wallet') {
+      if (connector?.name !== 'MetaMask') {
         writeContracts({
           contracts: [
             {
