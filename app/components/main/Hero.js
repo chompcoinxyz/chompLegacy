@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Web3 from 'web3';
 import { ChompLegacyABI, LegaciesABI, ChompCoinABI } from '../../../abis/getABI';
@@ -9,7 +9,7 @@ import {
   useWriteContract, 
   useConnect,
 } from 'wagmi';
-import { useWriteContracts } from 'wagmi/experimental';
+import { useWriteContracts, useCapabilities } from 'wagmi/experimental';
 import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
@@ -42,9 +42,31 @@ export default function Hero() {
       hash,
     });
   const { data: callID, writeContracts, isSuccess: isSuccessTransaction } = useWriteContracts();
+  const { data: availableCapabilities } = useCapabilities({
+    account: address,
+  });
   
+  const accountData = useAccount();
+  // console.log('===== availableCapabilities', availableCapabilities)
+  // console.log('===== accountData', accountData?.chainId)
   // console.log('===== connector', connector)
   // console.log('===== connector?.id', connector?.id)
+
+  const isPaymaster = useMemo(() => {
+    if (!availableCapabilities || !accountData.chainId) return false;
+    const capabilitiesForChain = availableCapabilities[accountData.chainId];
+    if (
+      capabilitiesForChain["paymasterService"] &&
+      capabilitiesForChain["paymasterService"].supported
+    ) {
+      return true;
+    }
+    return {};
+  }, [availableCapabilities, accountData.chainId]);
+
+  console.log('===== isPaymaster', isPaymaster)
+
+  
 
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -409,7 +431,8 @@ export default function Hero() {
     try {
       // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
 
-      if (connector?.name !== 'MetaMask') {
+      // if (connector?.name !== 'MetaMask') {
+      if (isPaymaster) {
         writeContracts({
           contracts: [
             {
@@ -482,7 +505,8 @@ export default function Hero() {
       //   alert("Approved. You can stake CHOMP tokens now.");
       // }
 
-      if (connector?.name !== 'MetaMask') {
+      // if (connector?.name !== 'MetaMask') {
+      if (isPaymaster) {
         setIsApproved(isApprovedRes);
         setLoading(false);
       }
@@ -523,7 +547,8 @@ export default function Hero() {
       // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
       // console.log('=== transaction in onStake', transaction)
 
-      if (connector?.name !== 'MetaMask') {
+      // if (connector?.name !== 'MetaMask') {
+      if (isPaymaster) {
         writeContracts({
           contracts: [
             {
@@ -586,7 +611,8 @@ export default function Hero() {
         // console.log('===== response in onWithdraw', response)
 
 
-        if (connector?.name !== 'MetaMask') {
+        // if (connector?.name !== 'MetaMask') {
+        if (isPaymaster) {
           writeContracts({
             contracts: [
               {
@@ -647,7 +673,8 @@ export default function Hero() {
         // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
         // console.log('==?= txResponse onMint', txResponse)
 
-        if (connector?.name !== 'MetaMask') {
+        // if (connector?.name !== 'MetaMask') {
+        if (isPaymaster) {
           writeContracts({
             contracts: [
               {
