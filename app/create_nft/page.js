@@ -8,6 +8,9 @@ import LoadingIcon from '../components/elems/Loading';
 import NotFoundErrorBoundary from '../components/errors/NotFoundErrorBoundary'
 
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+const admin1 = process.env.NEXT_PUBLIC_ADMIN1;
+const admin2 = process.env.NEXT_PUBLIC_ADMIN2;
+const adminWallets = [admin1, admin2];
 
 export default function CreateNft() {
   const { watch } = useForm({
@@ -62,7 +65,6 @@ export default function CreateNft() {
     loadBlockchainData();
   }, []);
 
-
   const connectWallet = async () => {
     if (typeof window !== "undefined") {
       if (window.ethereum && window.ethereum.isMetaMask) {
@@ -91,11 +93,20 @@ export default function CreateNft() {
     return null;
   };
 
+  function isAdminWallet(walletAddress) {
+    return adminWallets.includes(walletAddress);
+  }
+
+
   const handleSubmit = async () => {
     if (!account || account === undefined) {
       alert("Wallet connection is required to creating NFTs! Please connect your wallet.");
       return; // Stop execution if no account is available after trying to connect
     } else if (!web3 || !contract) { return }
+
+    if (!isAdminWallet(account)) {
+      return alert(`Access Denied. This page is only for admins.`);
+    }
 
     setLoading(true);
 
@@ -141,7 +152,7 @@ export default function CreateNft() {
     // show on UI to save tokenURI
   };
 
-  const inputStyles = "text-[17px] p-2 ml-4 border-0 mr-2 rounded text-center focus:outline-none";
+  const inputStyles = "text-[17px] p-2 mx-2 border-0 rounded text-center focus:outline-none";
 
   return (
     <NotFoundErrorBoundary>
@@ -150,26 +161,6 @@ export default function CreateNft() {
 
         <div className="mt-12">
           <h2 className="max-w-[500px] text-white font-bold text-xl mx-auto mb-2">Step 1: Connect wallet</h2>
-
-          {/* <h2 className="max-w-[500px] text-white font-bold text-xl mx-auto mb-2">Step 1: Create NFT's metadata</h2>
-          <div className='max-w-[500px] bg-black rounded-[14px] border border-accent mx-auto'>
-            <div className='flex flex-col justify-center pt-2'>
-              <label className="text-xs text-white pl-2 ml-4 mb-1" htmlFor={name}>Collection Name</label>
-              <input type="text" value={name} onChange={onChangeMetadata} name="name" placeholder="Collection Name" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" htmlFor={description}>Description</label>
-              <input type="text" value={description} onChange={onChangeMetadata} name="description" placeholder="Description" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" htmlFor={releaseTime}>NFT Image</label>
-              <input type="text" value={image} onChange={onChangeMetadata} name="image" placeholder="NFT Image" className={inputStyles} />
-              <button 
-                type="submit"
-                className={`w-full h-[60px] text-[17px] flex flex-row items-center justify-center font-bold px-6 py-2 text-white  mt-[13px] rounded-[14px] uppercase ${name?.length > 0 && description?.length > 0 && image?.length > 0 ? 'bg-primary hover:opacity-80': 'bg-black text-btnGray'}`}
-                disabled={name?.length > 0 && description?.length > 0 && image?.length > 0 ? false : true}
-                onClick={handleMetadata}
-              >
-                Create NFT Metadata
-              </button>
-            </div>
-          </div> */}
         </div>
 
         {tokenURI?.length > 0 && (
@@ -183,19 +174,19 @@ export default function CreateNft() {
           <h2 className="max-w-[500px] text-white font-bold text-xl mx-auto mb-2">Step 2: Create NFT collection</h2>
           <div className='max-w-[500px] bg-black rounded-[14px] border border-accent mx-auto'>
             <div className='flex flex-col justify-center pt-2'>
-              <label className="text-xs text-white pl-2 ml-4 mb-1" for={maxIssuance}>Max Issuance</label>
+              <label className="text-xs text-white pl-2 ml-2 mb-1" for={maxIssuance}>Max Issuance</label>
               <input type="number" value={maxIssuance} onChange={e => setMaxIssuance(e.target.value)} placeholder="Max Issuance" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" for={tokenURI}>Token URI</label>
+              <label className="text-xs text-white pl-2 ml-2 mb-1 mt-2" for={tokenURI}>Token URI (metadata json file)</label>
               <input type="text" value={tokenURI} onChange={e => setTokenURI(e.target.value)} placeholder="Token URI" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" for={image}>Release Time</label>
+              <label className="text-xs text-white pl-2 ml-2 mb-1 mt-2" for={image}>Release Time</label>
               <input type="datetime-local" value={releaseTime} onChange={e => setReleaseTime(e.target.value)} placeholder="Release Time" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" for={dotsPrice}>Price in Dots</label>
+              <label className="text-xs text-white pl-2 ml-2 mb-1 mt-2" for={dotsPrice}>Price in Dots</label>
               <input type="number" value={dotsPrice} onChange={e => setDotsPrice(e.target.value)} placeholder="Price in Dots" className={inputStyles} />
-              <label className="text-xs text-white pl-2 ml-4 mb-1 mt-2" for={ethPrice}>Price in ETH</label>
+              <label className="text-xs text-white pl-2 ml-2 mb-1 mt-2" for={ethPrice}>Price in ETH</label>
               <input type="text" value={ethPrice} onChange={e => setEthPrice(e.target.value)} placeholder="Price in ETH" className={inputStyles} />
               <button 
                 type="submit"
-                className={`w-full h-[60px] text-[17px] flex flex-row items-center justify-center font-bold px-6 py-2 text-white  mt-[13px] rounded-[14px] uppercase ${tokenURI?.length > 0 && !loading ? 'bg-primary hover:opacity-80': 'bg-black text-btnGray'}`}
+                className={`h-[60px] text-[17px] flex flex-row items-center justify-center font-bold px-6 py-2 mx-2 mb-2 text-white  mt-[13px] rounded-[14px] uppercase ${tokenURI?.length > 0 && !loading ? 'bg-primary hover:opacity-80': 'bg-black text-btnGray'}`}
                 disabled={tokenURI?.length > 0 && !loading ? false : true}
                 onClick={handleSubmit}
               >

@@ -47,10 +47,8 @@ export default function Hero() {
   });
   
   const accountData = useAccount();
-  // console.log('===== availableCapabilities', availableCapabilities)
   // console.log('===== accountData', accountData?.chainId)
   // console.log('===== connector', connector)
-  // console.log('===== connector?.id', connector?.id)
 
   const isPaymaster = useMemo(() => {
     if (!availableCapabilities || !accountData.chainId) return false;
@@ -63,10 +61,7 @@ export default function Hero() {
     }
     return {};
   }, [availableCapabilities, accountData.chainId]);
-
-  console.log('===== isPaymaster', isPaymaster)
-
-  
+  // console.log('===== isPaymaster', isPaymaster)
 
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -146,7 +141,6 @@ export default function Hero() {
           // const response = await fetch(test);
   
           const metadata = await response.json();
-          // console.log('==== metadata in loop', metadata)
   
           nfts.unshift({
             tokenId,
@@ -184,13 +178,7 @@ export default function Hero() {
       // Fetch data from Zora
       if (zdk) {
         const args = { 
-          where: {collectionAddresses: [
-            "0x6E3B47A8697Bc62be030827f4927A50Eb3a93d2A",
-            "0x014B6a629D6d8deb6F2CDE20e2D5a99d4A601feC",
-            "0x82262bFba3E25816b4C720F1070A71C7c16A8fc4",
-            // process.env.NEXT_PUBLIC_LEGACIES_ADDRESS,
-              ]
-            },
+          where: {collectionAddresses: [process.env.NEXT_PUBLIC_LEGACIES_ADDRESS,]},
             includeFullDetails: false
           };
         const zoraResponse = await zdk.collections(args);
