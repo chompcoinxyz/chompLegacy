@@ -10,9 +10,7 @@ import { useAccount } from 'wagmi';
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const admin1 = process.env.NEXT_PUBLIC_ADMIN1;
 const admin2 = process.env.NEXT_PUBLIC_ADMIN2;
-
 const adminWallets = [admin1, admin2];
-
 
 export default function CreateNft() {
   const { watch, setValue, register } = useForm({
@@ -41,7 +39,7 @@ export default function CreateNft() {
 
     async function checkAccess() {
       const isAdmin = isAdminWallet(address);
-      console.log('==== isAdmin in checkAccess', isAdmin);
+      // console.log('==== isAdmin in checkAccess', isAdmin);
       setAdminWallet(isAdmin);
     }
 
@@ -50,7 +48,7 @@ export default function CreateNft() {
 
 
   useEffect(() => {
-    console.log("==== USEEFFECT works:");
+    // console.log("==== USEEFFECT works:");
 
     const loadBlockchainData = async () => {
       // Create a Web3 instance using MetaMask's provider
@@ -71,11 +69,6 @@ export default function CreateNft() {
     loadBlockchainData();
   }, []);
 
-  // console.log('==== address', address)
-  // console.log('==== adminWallet', adminWallet)
-  // console.log('==== amount', amount)
-  // console.log('==== recipient', recipient)
-
   if (!address) {
     return (
       <div className="max-w-[1300px] mx-auto pb-20 pt-6">
@@ -94,7 +87,6 @@ export default function CreateNft() {
     );
   }
 
-
   const handleSubmit = async () => {
     if (!account || account === undefined) {
       alert("Wallet connection is required to withdraw ETH! Please connect your wallet.");
@@ -111,8 +103,7 @@ export default function CreateNft() {
       const eth = web3.utils.toWei(amount.toString(), 'ether');
      
       const res = await contract.methods.withdrawEther(recipient, eth).send({ from: address });
-  
-      console.log('==== res in handleSubmit', res)
+      // console.log('==== res in handleSubmit', res)
 
       if (res?.transactionHash) {
         setHash(res.transactionHash)
@@ -128,7 +119,6 @@ export default function CreateNft() {
 
   const inputStyles = "text-[17px] p-2 mx-2 border-0 rounded text-center focus:outline-none";
 
-  console.log('==== web3', web3)
   return (
     <main className='max-w-[1300px] mx-auto pb-20 pt-6'>
       <Nav account={account} setAccount={setAccount} />

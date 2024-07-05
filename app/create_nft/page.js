@@ -38,19 +38,17 @@ export default function CreateNft() {
     attributes: [],
   });
 
-  const { name, description, image, attributes } = metadata;
+  const { image, } = metadata;
 
   useEffect(() => {
-    console.log("==== USEEFFECT works:");
+    // console.log("==== USEEFFECT works:");
 
     const loadBlockchainData = async () => {
       // Create a Web3 instance using MetaMask's provider
       if (typeof window !== "undefined") {
         const web3 = new Web3(window.ethereum);
 
-        console.log("==== USEEFFECT setting Metamasks's profiver", web3);
-
-
+        // console.log("==== USEEFFECT setting Metamasks's profiver", web3);
         setWeb3(web3);
   
         const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
@@ -96,7 +94,6 @@ export default function CreateNft() {
   function isAdminWallet(walletAddress) {
     return adminWallets.includes(walletAddress);
   }
-
 
   const handleSubmit = async () => {
     if (!account || account === undefined) {
@@ -144,7 +141,6 @@ export default function CreateNft() {
   const handleMetadata = async (e) => {
     e.preventDefault();
     
-
     // call to ipfs
 
     // save response as tokenURI

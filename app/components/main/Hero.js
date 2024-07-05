@@ -15,8 +15,9 @@ import Deposit from './Deposit';
 import Nav from './Nav';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
-import MetamaskMobile from '../elems/MetamaskMobile';
+import ConnectWalletMobile from '../elems/ConnectWalletMobile';
 import Footer from '../elems/Footer';
+import Alert from '../elems/Alert';
 import NotFoundErrorBoundary from '../errors/NotFoundErrorBoundary';
 import { ZDK, ZDKNetwork, ZDKChain } from "@zoralabs/zdk";
 
@@ -24,6 +25,7 @@ const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const chompCoinAddress = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 const legaciesAddress = process.env.NEXT_PUBLIC_LEGACIES_ADDRESS;
 const rpc = process.env.NEXT_PUBLIC_RPC_URL;
+const basescan = `https://${process.env.NEXT_PUBLIC_PROD === 'true' ? '' : 'sepolia.'}basescan.org`
 
 export default function Hero() {
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -47,8 +49,6 @@ export default function Hero() {
   });
   
   const accountData = useAccount();
-  // console.log('===== accountData', accountData?.chainId)
-  // console.log('===== connector', connector)
 
   const isPaymaster = useMemo(() => {
     if (!availableCapabilities || !accountData.chainId) return false;
@@ -61,7 +61,6 @@ export default function Hero() {
     }
     return {};
   }, [availableCapabilities, accountData.chainId]);
-  // console.log('===== isPaymaster', isPaymaster)
 
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
@@ -83,11 +82,11 @@ export default function Hero() {
   const [nfts, setNfts] = useState([]);
   const [userNfts, setUserNfts] = useState([]);
   const [mintLoading, setMintLoading] = useState(false);
-  const [txHash, setTxHash] = useState('');
-  const [txStatus, setTxStatus] = useState('');
   const [nftLoading, setNftLoading] = useState(false);
   const [nftUserLoading, setNftUSerLoading] = useState(false);
   const [mintIndex, setMintIndex] = useState(99);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMsg, setAlertMgs] = useState(false);
 
   const [zoraData, setZoraData] = useState(false);
   const networkInfo = {
@@ -109,7 +108,7 @@ export default function Hero() {
         const userStakedWei = await contract.methods.balanceOf(account).call();
         let userStakedTokens = web3.utils.fromWei(userStakedWei, 'ether');
         if (userStakedTokens === '0.') userStakedTokens = 0;
-        // console.log("fetchUserStakedTokens: User staked tokens:", userStakedTokens);
+
         setUserStakedTokens(userStakedTokens);
     } catch (error) {
         console.error("Error fetching user staked tokens:", error);
@@ -128,17 +127,12 @@ export default function Hero() {
 
       for (let tokenId = 1; tokenId <= lastIdNumber; tokenId++) {
         try {
-          // console.log('==== tokenId in loop', tokenId)
           const uri = await contract.methods.uri(tokenId).call();
-          // console.log('==== uri in loop', uri)
 
           const totalSupply = await contract.methods.totalSupply(tokenId).call();
           const maxIssuance = await contract.methods.maxIssuance(tokenId).call();
 
-          // const test = sampleData[tokenId-1] // TESTS
-
           const response = await fetch(uri);
-          // const response = await fetch(test);
   
           const metadata = await response.json();
   
@@ -153,7 +147,7 @@ export default function Hero() {
           // User's NFTs
           if (wallet) {
             const balance = await contract.methods.balanceOf(wallet, tokenId).call();
-            // console.log('====== balance in loop', balance)
+
             if (balance > 0) {
               userNFTs.push({
                   tokenId,
@@ -170,7 +164,6 @@ export default function Hero() {
       }
       setNftLoading(false);
       setNftUSerLoading(false);
-      // console.log('==== userNFTs in fetchNFTData', userNFTs)
 
       setNfts(nfts);
       setUserNfts(userNFTs);
@@ -217,16 +210,10 @@ export default function Hero() {
     abi: ChompCoinABI,
   };
 
-
   useEffect(() => {
     const loadBlockchainData = async () => {
-      // const provider = await getProvider(); // This ensures the provider is ready
-      // if (!provider) return; // Early exit if no provider
-      
-      // const web3 = new Web3(window.ethereum);
       const web3 = new Web3(rpc);
       setWeb3(web3);
-      // console.log("======= WEB3 in USEEFFECT:", web3);
 
       const contractInstance = new web3.eth.Contract(ChompLegacyABI, chompLegacyAddress);
       setContract(contractInstance);
@@ -237,8 +224,7 @@ export default function Hero() {
       const legaciesContractInstance = new web3.eth.Contract(LegaciesABI, legaciesAddress);
       setLegaciesContract(legaciesContractInstance);
     
-      // const accounts = await web3.eth.getAccounts();
-      console.log("address:", address);
+      // console.log("address:", address);
 
       if (address?.length > 0) {
         fetchAllUserTokens(address, contractInstance, web3, tokenContractInstance);
@@ -248,19 +234,14 @@ export default function Hero() {
       if (!nfts || nfts?.length === 0) {
         const nftData = await fetchNFTData(legaciesContractInstance, address);
       }
-      
     }
     loadBlockchainData();
   }, [address]);
-  // console.log("======= rpc:", rpc);
 
   useEffect(() => {
     if (!account || !contract || !web3 || !tokenContract) return
-    // console.log("======= isSuccess in USEEFFECT 2:", isSuccess);
 
     if (isSuccess || isSuccessTransaction) {
-      // fetchAllUserTokens(account, contract, web3, tokenContract);
-      // fetchUserChompBalance(account, tokenContract, web3);
       setTimeout(() => {
         fetchAllUserTokens(account, contract, web3, tokenContract);
         fetchUserChompBalance(account, tokenContract, web3);
@@ -268,6 +249,11 @@ export default function Hero() {
         if (stakeLoading) {
           setStakeLoading(false);
           setIsApproved(false);
+
+          if (connector?.name !== 'Coinbase Wallet') {
+            setAlertMgs('Stake was successful!')
+            setAlertVisible(true);
+          }
         }
 
         if (mintLoading) {
@@ -276,30 +262,32 @@ export default function Hero() {
           setActiveLegacyTab(2);
           setMintLoading(false);
           // alert(`Minting was successful! Transaction Hash: ${callID}`);
+
+          if (connector?.name !== 'Coinbase Wallet') {
+            setAlertMgs("Minting was successful. You can find your NFT in the 'My Legacy' tab.");
+            setAlertVisible(true);
+          }
         }
       }, 4000);
     }
   }, [isSuccess, isSuccessTransaction]);
 
   useEffect(() => {
-    // console.log("======= isConfirming in USEEFFECT 3:", isConfirming);
-
     if (loading && isConfirming) { 
       setLoading(false);
       setIsApproved(true);
     } else if (withdrawLoading && isConfirming) {
-      setWithdrawLoading(false);
-      reset({ amountWithdraw: '' });
+      setTimeout(() => {
+        fetchAllUserTokens(account, contract, web3, tokenContract);
+        fetchUserChompBalance(account, tokenContract, web3);
+
+        setWithdrawLoading(false);
+        reset({ amountWithdraw: '' });
+      }, 2000);
+
     }
   }, [isConfirming, loading, stakeLoading, withdrawLoading, mintLoading]);
     
-  // console.log("==== loading after effects:", loading);
-  // console.log("==== isConfirming after effects:", isConfirming);
-  // console.log("==== isSuccess after effects:", isSuccess);
-  // console.log("==== isPending after effects:", isPending);
-  // console.log("==== error after effects:", error);
-
-
   const updateProvider = async (connector) => {
     const provider = await connector.getProvider();
 
@@ -338,7 +326,6 @@ export default function Hero() {
 
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        console.log('====== accounts in connectWallet', accounts);
 
         if (accounts.length === 0) {
           console.log('MetaMask is locked or the user has not connected any accounts');
@@ -361,7 +348,6 @@ export default function Hero() {
     return null;
   };
 
-
   const fetchDots = async (contractInstance, web3, account) => {
     if (!contractInstance || !web3) return;
 
@@ -369,7 +355,7 @@ export default function Hero() {
       const totalUserDotsWei = await contractInstance.methods.earned(account).call();
 
       let userDots = web3.utils.fromWei(totalUserDotsWei, 'ether');
-      // console.log("==== userDots in fetchDots:", userDots);
+      
       if (userDots === '0.') userDots = 0;
       setUserDots(userDots);
 
@@ -387,7 +373,7 @@ export default function Hero() {
 
       let userChomp = web3.utils.fromWei(balance, 'ether');
       if (userChomp === '0.') userChomp = 0;
-      // console.log('===== userChomp in fetchUserChompBalance:', userChomp)
+      
       setUserChompBalanceTokens(userChomp);
       return;
     } catch (error) {
@@ -406,7 +392,6 @@ export default function Hero() {
   async function ensureTokenApproval(account, amountInWei) {
   
     const allowance = await tokenContract.methods.allowance(account, chompLegacyAddress).call();
-    // console.log('=== ensureTokenApproval 1: allowance', allowance)
 
     if (BigInt(allowance) >= BigInt(amountInWei)) {
       console.log('Token already approved');
@@ -417,9 +402,7 @@ export default function Hero() {
     }
   
     try {
-      // const approvalResult = await tokenContract.methods.approve(chompLegacyAddress, amountInWei).send({ from: account });
-
-      // if (connector?.name !== 'MetaMask') {
+      // Gasless or not (Paymaster or not)
       if (isPaymaster) {
         writeContracts({
           contracts: [
@@ -437,7 +420,7 @@ export default function Hero() {
           },
         })
       } else {
-        // Metamask
+        // Not Paymaster 
         writeContract({
           ...chompCoinConfig,
           functionName: 'approve',
@@ -451,7 +434,6 @@ export default function Hero() {
         })
       }
       
-      // return approvalResult.status;
       return true;
     } catch (error) {
       console.error('Approval error:', error);
@@ -488,12 +470,7 @@ export default function Hero() {
         setIsApproved(false);
         return;
       }
-  
-      // if (isApprovedRes) {
-      //   alert("Approved. You can stake CHOMP tokens now.");
-      // }
-
-      // if (connector?.name !== 'MetaMask') {
+      
       if (isPaymaster) {
         setIsApproved(isApprovedRes);
         setLoading(false);
@@ -529,13 +506,8 @@ export default function Hero() {
       setStakeLoading(true);
 
       const amountInWei = web3.utils.toWei(amount, 'ether');
-      
-      // Execute the stake transaction
-      // const transaction = await contract.methods.stake(amountInWei).send({ from: effectiveAccount });
-      // alert("Stake successful! Transaction hash: " + transaction.transactionHash);
-      // console.log('=== transaction in onStake', transaction)
-
-      // if (connector?.name !== 'MetaMask') {
+    
+      // Gasless or not (Paymaster or not)
       if (isPaymaster) {
         writeContracts({
           contracts: [
@@ -556,7 +528,7 @@ export default function Hero() {
         setStakeLoading(false);
         setIsApproved(false);
       } else {
-        // Metamask
+        // No Paymaster
         writeContract({
           ...chompLegacyContractConfig,
           functionName: 'stake',
@@ -570,9 +542,6 @@ export default function Hero() {
         })
       }
 
-    
-      // // alert("Stake successful! Transaction hash: " + hash);
-
       // Reset the amount input field
       reset({ amount: '' });
       // setStakeLoading(false);
@@ -584,7 +553,6 @@ export default function Hero() {
     }
   };
 
-
   const onWithdraw = async () => {
     if (!account || !contract) {
         alert("Please connect your wallet and ensure the contract is loaded.");
@@ -595,11 +563,8 @@ export default function Hero() {
         setWithdrawLoading(true);
 
         const amount = web3.utils.toWei(amountWithdraw.toString(), 'ether')
-        // const response = await contract.methods.withdraw(amount).send({ from: account });
-        // console.log('===== response in onWithdraw', response)
 
-
-        // if (connector?.name !== 'MetaMask') {
+        // Gasless or not (Paymaster or not)
         if (isPaymaster) {
           writeContracts({
             contracts: [
@@ -616,8 +581,18 @@ export default function Hero() {
               },
             },
           })
+
+          // Smart wallet doesn't return isConfirming or isSuccess statues
+          // So, we update state in 7s
+          setTimeout(() => {
+            fetchAllUserTokens(account, contract, web3, tokenContract);
+            fetchUserChompBalance(account, tokenContract, web3);
+    
+            setWithdrawLoading(false);
+            reset({ amountWithdraw: '' });
+          }, 7000);
         } else {
-          // Metamask
+          // No Paymaster
           writeContract({
             ...chompLegacyContractConfig,
             functionName: 'withdraw',
@@ -630,13 +605,9 @@ export default function Hero() {
             },
           })
         }
-
-
-        // Alert success message
-        // alert("Unstake successful! Your tokens have been returned to your wallet.");
        
-        setWithdrawLoading(false);
-        reset({ amountWithdraw: '' });
+        // setWithdrawLoading(false);
+        // reset({ amountWithdraw: '' });
     } catch (error) {
         console.error("Error withdrawing:", error);
         alert("Failed to withdraw tokens. See console for more details.");
@@ -653,15 +624,10 @@ export default function Hero() {
     try {
         setMintLoading(true);
         setMintIndex(index);
-        // console.log('=== index onMint for mintindex', index)
         
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
         const requiredEth = BigInt(ethPrice) * BigInt(quantity);
 
-        // const txResponse = await contract.methods.redeem(tokenId, quantity).send(transactionParameters);
-        // console.log('==?= txResponse onMint', txResponse)
-
-        // if (connector?.name !== 'MetaMask') {
         if (isPaymaster) {
           writeContracts({
             contracts: [
@@ -684,7 +650,7 @@ export default function Hero() {
           setMintLoading(false)
           setMintIndex(99)
         } else {
-          // Metamask
+          // Not Paymaster 
           writeContract({
             ...chompLegacyContractConfig,
             functionName: 'redeem',
@@ -700,14 +666,6 @@ export default function Hero() {
           })
         }
 
-  
-        // if (isSuccess) {
-        //   // console.log('Minting was successful:', txResponse.transactionHash);
-
-        //   setActiveLegacyTab(2);
-        //   // alert(`Minting was successful! Transaction Hash: ${txResponse.transactionHash}`);
-        // } 
-
         // setMintLoading(false)
         // setMintIndex(99)
         // return console.log('NFT minted successfully!');
@@ -718,8 +676,6 @@ export default function Hero() {
         setMintLoading(false);
     }
   };
-
-  // console.log('===== account', account);
  
   return (
     <NotFoundErrorBoundary>
@@ -742,7 +698,7 @@ export default function Hero() {
                       />
                     </div>
                     <div className="w-[300px] block sm:hidden">
-                      <MetamaskMobile/>
+                      <ConnectWalletMobile/>
                     </div>
                   </>
                 ) : (
@@ -785,8 +741,6 @@ export default function Hero() {
                 nfts={nfts}
                 onMint={onMint} 
                 mintLoading={mintLoading} 
-                txHash={txHash} 
-                txStatus={txStatus} 
                 nftLoading={nftLoading}
                 account={account}
                 mintIndex={mintIndex}
@@ -798,8 +752,6 @@ export default function Hero() {
                 nfts={userNfts}
                 onMint={onMint} 
                 mintLoading={mintLoading} 
-                txHash={txHash} 
-                txStatus={txStatus} 
                 nftLoading={nftUserLoading}
                 isUserNfts={true}
                 account={account}
@@ -811,7 +763,13 @@ export default function Hero() {
         </div>
       </div>
       <div className="mt-8 mb-10"><Footer /></div>
-     
+      {alertVisible && 
+        <Alert
+          message={alertMsg} 
+          onClose={() => setAlertVisible(false)} 
+          url={`${basescan}/tx/${hash}`}
+        />
+        }
     </NotFoundErrorBoundary>
   );
 }

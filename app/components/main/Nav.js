@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import MetamaskMobile from '../elems/MetamaskMobile';
+import ConnectWalletMobile from '../elems/ConnectWalletMobile';
 import ArrowDown from '../elems/ArrowDown';
 import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 
-export default function Nav({ connectWallet, account, setAccount, updateProvider, }) {
+export default function Nav({ account, setAccount, updateProvider, }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { open } = useWeb3Modal()
@@ -39,7 +39,7 @@ export default function Nav({ connectWallet, account, setAccount, updateProvider
           <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-col lg:hidden absolute top-[100px] right-0 rounded shadow-xl mx-auto p-4 bg-white z-20`} id="mobile-menu">
               <div className="mb-4 text-center"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
               {!account ? (
-                  <MetamaskMobile />
+                  <ConnectWalletMobile />
               ) : (
                 <>
                   <button

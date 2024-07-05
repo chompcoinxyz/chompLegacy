@@ -14,7 +14,6 @@ const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
   projectId,
-  // enableOnramp: true // Optional - false as default
   name: 'CHOMP Legacy',
   description: 'Mint Chomp Legacy NFTs by Staking Chomp',
   url: 'https://chomplegacy.com',
