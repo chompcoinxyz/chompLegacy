@@ -8,16 +8,10 @@ import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 
-export default function Nav({ account, setAccount, updateProvider, }) {
+export default function Nav({ account, setAccount, updateProvider, setSwapModal }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { open } = useWeb3Modal()
-
-    function handleNavigationClick() {
-      if (window && window.innerWidth < 1024) {
-          setIsMobileMenuOpen(false);
-      }
-    }
 
     return (
       <div className="navbar">
@@ -52,19 +46,25 @@ export default function Nav({ account, setAccount, updateProvider, }) {
             )}
           </div>
           <div id="menu-2" className={`hidden md:flex md:ml-auto flex-row items-start mt-[7px]`}>
-            <div className="relative h-[100px] mt-[7px] mr-4"
+            <div className="relative h-[150px] mt-[7px] mr-4"
               onMouseEnter={() => setIsDropdownOpen(true)}
-              onMouseLeave={() => setIsDropdownOpen(false)}>
-
+              onMouseLeave={() => setIsDropdownOpen(false)}
+            >
               <button className="text-white text-[18px] font-semibold px-4 py-2 focus:outline-none focus:shadow-outline flex flex-row items-center">
                   Buy CHOMP <span className="ml-1"><ArrowDown/></span>
               </button>
-
               {isDropdownOpen && (
                 <div className="absolute mt-1 w-full rounded-md shadow-lg bg-white">
                     <div className="py-1">
                         <a href="https://app.uniswap.org/swap?outputCurrency=0xebff2db643cf955247339c8c6bcd8406308ca437&chain=base" className="text-[18px] block px-4 py-2 font-medium text-black hover:bg-gray-100" target="_blank" rel="noopener noreferrer">Uniswap (Ξ)</a>
                     </div>
+                    {/* <div className="py-1">
+                        <span 
+                          onClick={() => setSwapModal(true)}
+                          className='text-[18px] block px-4 py-2 font-medium cursor-pointer text-black hover:bg-gray-100'
+                        >
+                          Coinbase Swap</span>
+                    </div> */}
                 </div>
               )}
           </div>

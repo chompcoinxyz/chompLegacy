@@ -1,10 +1,6 @@
 import './globals.css';
 import OnchainProviders from './components/providers/OnchainProviders';
 
-// import { headers } from 'next/headers'
-// import { cookieToInitialState } from 'wagmi';
-// import wagmiConfig from '../config/wagmi';
-
 export const metadata = {
   title: 'CHOMP Legacy',
   description: 'Mint Chomp Legacy NFTs by Staking Chomp',
@@ -23,7 +19,6 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  // const initialState = cookieToInitialState(wagmiConfig, headers().get('cookie'))
   return (
     <html lang="en" className={'bg-bgMain'}>
       <body>

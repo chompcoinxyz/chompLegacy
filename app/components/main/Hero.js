@@ -13,6 +13,7 @@ import { useWriteContracts, useCapabilities } from 'wagmi/experimental';
 import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
+import Swap from './SwapComponent';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
 import ConnectWalletMobile from '../elems/ConnectWalletMobile';
@@ -87,6 +88,7 @@ export default function Hero() {
   const [mintIndex, setMintIndex] = useState(99);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMsg, setAlertMgs] = useState(false);
+  const [swapModal, setSwapModal] = useState(false);
 
   const [zoraData, setZoraData] = useState(false);
   const networkInfo = {
@@ -135,7 +137,10 @@ export default function Hero() {
           const response = await fetch(uri);
   
           const metadata = await response.json();
-  
+
+          // console.log('uri', uri)
+          // console.log('metadata', metadata)
+
           nfts.unshift({
             tokenId,
             uri,
@@ -196,6 +201,8 @@ export default function Hero() {
       return null;
     }
   }
+
+  // console.log('nfts', nfts)
 
   const chompLegacyContractConfig = {
     address: chompLegacyAddress,
@@ -683,7 +690,7 @@ export default function Hero() {
         <div className="pt-[25px] z-10">
           <div className="border__main">
             <div className="border__main__content">
-              <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} updateProvider={updateProvider} />
+              <Nav connectWallet={connectWallet} account={account} setAccount={setAccount} updateProvider={updateProvider} setSwapModal={setSwapModal} />
               <h1 className="font-amiger text-[35px] md:text-[55px] pt-[5px] uppercase text-white text-center title__shadow opacity-99">stake chomp, gather dots, mint legacy.</h1>
               <div className="w-full flex justify-center mt-[10px] mb-[20px] sm:mb-[40px]">
                 {!account ? (
@@ -770,6 +777,21 @@ export default function Hero() {
           url={`${basescan}/tx/${hash}`}
         />
         }
+        {swapModal && (
+          <div className="swap-modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white w-5/6 p-6 rounded-lg relative">
+              <button 
+                className="absolute top-2 right-4 text-gray-500 hover:text-gray-700"
+                onClick={() => setSwapModal(false)}
+              >
+                X
+              </button>
+              <h2 className="text-left text-lg font-bold">Swap tokens</h2>
+              <Swap address={address} />
+
+            </div>
+          </div>
+        )}
     </NotFoundErrorBoundary>
   );
 }

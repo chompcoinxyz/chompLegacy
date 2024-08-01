@@ -48,13 +48,6 @@ export default function NftCard({ nft, mintLoading, onMint, isUserNfts, mintInde
               className={`w-full h-[50px] text-[17px] shadow-xl flex flex-row items-center justify-center font-bold text-white uppercase ${nft.maxIssuance === nft.totalSupply ? 'bg-btnDisabled text-white' : 'border__button__content'}`}
             >
               <div className={`${!mintLoading || nft.maxIssuance === nft.totalSupply ? 'border__button__text' : 'flex flex-row items-center'}`}>
-                {/* {!mintLoading && nft.maxIssuance > nft.totalSupply && mintIndex !== index ? 'Mint' : nft.maxIssuance === nft.totalSupply ? 'Sold Out' : (
-                  <>
-                    <LoadingIcon className="mr-2 h-8 w-8 animate-spin" color="text-primary" />
-                    Pending...
-                  </>
-                  )} */}
-
                   {nft.maxIssuance === nft.totalSupply ? 'Sold Out' : mintLoading && mintIndex === index ?
                    (
                     <>
