@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ConnectWalletMobile from '../elems/ConnectWalletMobile';
-import ArrowDown from '../elems/ArrowDown';
 import WalletIcon from '../elems/Wallet';
 import CoinbaseCreateWalletButton from '../elems/CoinbaseCreateWalletButton';
 import { useWeb3Modal } from '@web3modal/wagmi/react'
+import NavBuyChomp from './NavBuyChomp';
 
 
 export default function Nav({ account, setAccount, updateProvider, setSwapModal }) {
@@ -30,7 +30,13 @@ export default function Nav({ account, setAccount, updateProvider, setSwapModal 
               <span className="sr-only">Toggle navigation</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"></path></svg>
           </button>
-          <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-col lg:hidden absolute top-[100px] right-0 rounded shadow-xl mx-auto p-4 bg-white z-20`} id="mobile-menu">
+          <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-col lg:hidden absolute top-[100px] right-0 rounded shadow-xl mx-auto p-4 bg-white md:z-20 z-[1000]`} id="mobile-menu">
+              <NavBuyChomp
+                setIsDropdownOpen={setIsDropdownOpen}
+                isDropdownOpen={isDropdownOpen}
+                setSwapModal={setSwapModal}
+                isMobile={true}
+              />
               <div className="mb-4 text-center"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
               {!account ? (
                   <ConnectWalletMobile />
@@ -46,49 +52,33 @@ export default function Nav({ account, setAccount, updateProvider, setSwapModal 
             )}
           </div>
           <div id="menu-2" className={`hidden md:flex md:ml-auto flex-row items-start mt-[7px]`}>
-            <div className="relative h-[150px] mt-[7px] mr-4"
-              onMouseEnter={() => setIsDropdownOpen(true)}
-              onMouseLeave={() => setIsDropdownOpen(false)}
-            >
-              <button className="text-white text-[18px] font-semibold px-4 py-2 focus:outline-none focus:shadow-outline flex flex-row items-center">
-                  Buy CHOMP <span className="ml-1"><ArrowDown/></span>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute mt-1 w-full rounded-md shadow-lg bg-white">
-                    <div className="py-1">
-                        <a href="https://app.uniswap.org/swap?outputCurrency=0xebff2db643cf955247339c8c6bcd8406308ca437&chain=base" className="text-[18px] block px-4 py-2 font-medium text-black hover:bg-gray-100" target="_blank" rel="noopener noreferrer">Uniswap (Ξ)</a>
-                    </div>
-                    {/* <div className="py-1">
-                        <span 
-                          onClick={() => setSwapModal(true)}
-                          className='text-[18px] block px-4 py-2 font-medium cursor-pointer text-black hover:bg-gray-100'
-                        >
-                          Coinbase Swap</span>
-                    </div> */}
-                </div>
-              )}
-          </div>
+              
+            <NavBuyChomp
+              setIsDropdownOpen={setIsDropdownOpen}
+              isDropdownOpen={isDropdownOpen}
+              setSwapModal={setSwapModal}
+              isMobile={false}
+            />
 
-          <div className="mr-4"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
-
-            {!account ? (
-              <button
-                type="submit" 
-                onClick={() => open()}
-                className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
-              >
+            <div className="mr-4"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
+              {!account ? (
+                <button
+                  type="submit" 
+                  onClick={() => open()}
+                  className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
+                >
+                  <WalletIcon />
+                  <span className="ml-2 font-bold text-[18px]">Connect</span>
+                </button>
+              ) : (
+                <button
+                  className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
+                >
                 <WalletIcon />
-                <span className="ml-2 font-bold text-[18px]">Connect</span>
+                <span className="ml-2 font-bold text-[18px]">{account.slice(0, 5)}...{account.slice(-4)}</span>
               </button>
-            ) : (
-              <button
-                className={`flex flex-row opacity-99 items-center py-[12px] px-[25px] text-[17px] leading-[27px] rounded-[11px] border border-white text-black bg-white hover:border-slate-200 hover:bg-slate-200`}
-              >
-              <WalletIcon />
-              <span className="ml-2 font-bold text-[18px]">{account.slice(0, 5)}...{account.slice(-4)}</span>
-            </button>
-            )}
-          </div>
+              )}
+            </div>
         </div>
       </div>
     );

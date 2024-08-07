@@ -16,7 +16,6 @@ const frameMetadata = getFrameMetadata({
     },
   ],
   image: `${process.env.NEXT_PUBLIC_URL}/img/og_image.png`,
-  // postUrl: `${process.env.NEXT_PUBLIC_URL}/api/frame`,
 });
 
 export const metadata = {

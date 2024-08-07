@@ -1,5 +1,6 @@
 import './globals.css';
 import OnchainProviders from './components/providers/OnchainProviders';
+import '@coinbase/onchainkit/styles.css';
 
 export const metadata = {
   title: 'CHOMP Legacy',

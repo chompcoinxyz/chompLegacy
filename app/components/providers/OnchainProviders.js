@@ -10,6 +10,9 @@ import wagmiConfig from '../../../config/wagmi';
 const queryClient = new QueryClient();
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID;
 const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
+// const chain = base;
+const onchainKey = process.env.NEXT_PUBLIC_ONCHAINKIT_KEY;
+
 
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
@@ -27,7 +30,7 @@ function OnchainProviders({ children, }) {
   return (
     <WagmiProvider config={wagmiConfig} >
       <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider chain={chain}>
+        <OnchainKitProvider chain={chain} apiKey={onchainKey} >
           {children}
         </OnchainKitProvider>
       </QueryClientProvider>

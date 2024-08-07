@@ -14,6 +14,7 @@ import Minting from './Minting';
 import Deposit from './Deposit';
 import Nav from './Nav';
 import Swap from './SwapComponent';
+import SwapModal from './SwapModal';
 import LegacyTabs from '../elems/LegacyTabs';
 import StakeButton from '../elems/StakeButton';
 import ConnectWalletMobile from '../elems/ConnectWalletMobile';
@@ -778,19 +779,10 @@ export default function Hero() {
         />
         }
         {swapModal && (
-          <div className="swap-modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white w-5/6 p-6 rounded-lg relative">
-              <button 
-                className="absolute top-2 right-4 text-gray-500 hover:text-gray-700"
-                onClick={() => setSwapModal(false)}
-              >
-                X
-              </button>
-              <h2 className="text-left text-lg font-bold">Swap tokens</h2>
-              <Swap address={address} />
-
-            </div>
-          </div>
+          <SwapModal
+            setSwapModal={setSwapModal}
+            address={address}
+          />
         )}
     </NotFoundErrorBoundary>
   );
