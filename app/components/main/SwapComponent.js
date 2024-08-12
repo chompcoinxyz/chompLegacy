@@ -32,7 +32,7 @@ export default function SwapComponent({ address }) {
 
   const USDCToken = { 
     address: process.env.NEXT_PUBLIC_USDC_ADDRESS,
-    chainId: 8453,
+    chainId: chain.id,
     decimals: 6,
     name: "USDC",
     symbol: "USDC",
@@ -40,7 +40,7 @@ export default function SwapComponent({ address }) {
    };
 
   const swappableTokens = [ETHToken, USDCToken, ChompCoin];
-  // console.log('===== chain.id', chain?.id)
+  console.log('chain.id', chain?.id)
   return (
     address ? (
       <Swap address={address} className="w-[300px] md:w-[500px]">
