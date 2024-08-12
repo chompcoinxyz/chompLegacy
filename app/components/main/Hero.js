@@ -248,7 +248,8 @@ export default function Hero() {
 
   useEffect(() => {
     if (!account || !contract || !web3 || !tokenContract) return
-
+    // console.log('==== useEffect 1, isSuccess', isSuccess)
+    // console.log('==== useEffect 1, isSuccessTransaction', isSuccessTransaction)
     if (isSuccess || isSuccessTransaction) {
       setTimeout(() => {
         fetchAllUserTokens(account, contract, web3, tokenContract);
@@ -281,6 +282,8 @@ export default function Hero() {
   }, [isSuccess, isSuccessTransaction]);
 
   useEffect(() => {
+    // console.log('==== useEffect 2, loading && isConfirming', loading && isConfirming)
+    // console.log('==== useEffect 2, withdrawLoading && isConfirming', withdrawLoading && isConfirming)
     if (loading && isConfirming) { 
       setLoading(false);
       setIsApproved(true);
@@ -636,6 +639,7 @@ export default function Hero() {
         const ethPrice = await contract.methods.ethPrices(tokenId).call();
         const requiredEth = BigInt(ethPrice) * BigInt(quantity);
 
+        // console.log('=== minting start')
         if (isPaymaster) {
           writeContracts({
             contracts: [
@@ -673,6 +677,7 @@ export default function Hero() {
             },
           })
         }
+        // console.log('=== minting finish')
 
         // setMintLoading(false)
         // setMintIndex(99)

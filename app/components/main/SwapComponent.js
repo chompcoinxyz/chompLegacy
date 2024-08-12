@@ -39,8 +39,8 @@ export default function SwapComponent({ address }) {
     image: '/img/usdc.png',
    };
 
-  const swappableTokens = [ETHToken, USDCToken];
-
+  const swappableTokens = [ETHToken, USDCToken, ChompCoin];
+  // console.log('===== chain.id', chain?.id)
   return (
     address ? (
       <Swap address={address} className="w-[300px] md:w-[500px]">
