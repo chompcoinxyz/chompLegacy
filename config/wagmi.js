@@ -22,8 +22,8 @@ const wagmiConfig = createConfig({
   ],
   ssr: true,
   transports: {
-    // [chain.id]: http(),
-    [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    [chain.id]: http(),
+    // [chain.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
   storage: createStorage({
     storage: cookieStorage
