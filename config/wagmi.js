@@ -27,7 +27,8 @@ const wagmiConfig = createConfig({
   },
   storage: createStorage({
     storage: cookieStorage
-  })
+  }),
+  multiInjectedProviderDiscovery: false,
 });
 
 export default wagmiConfig;

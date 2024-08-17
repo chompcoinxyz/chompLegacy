@@ -27,8 +27,6 @@ createWeb3Modal({
 })
 
 function OnchainProviders({ children, }) {
-  // console.log('=== onchainKey', onchainKey)
-  // console.log('=== chain', chain)
   return (
     <WagmiProvider config={wagmiConfig} >
       <QueryClientProvider client={queryClient}>
