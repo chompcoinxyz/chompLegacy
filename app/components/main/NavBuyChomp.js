@@ -17,14 +17,14 @@ export default function NavBuyChomp({ setIsDropdownOpen, isDropdownOpen, setSwap
               <div className="py-1">
                   <a href="https://app.uniswap.org/swap?outputCurrency=0xebff2db643cf955247339c8c6bcd8406308ca437&chain=base" className="text-[18px] block px-4 py-2 font-medium text-black hover:bg-gray-100" target="_blank" rel="noopener noreferrer">Uniswap</a>
               </div>
-              <div className="py-1">
+              {/* <div className="py-1">
                   <span 
                     onClick={() => setSwapModal(true)}
                     className='text-[18px] block px-4 py-2 font-medium cursor-pointer text-black hover:bg-gray-100'
                   >
                     Base Swap
                   </span>
-              </div>
+              </div> */}
           </div>
         ) : null}
     </div>
