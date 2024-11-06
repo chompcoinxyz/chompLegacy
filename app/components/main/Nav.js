@@ -59,7 +59,6 @@ export default function Nav({ account, setAccount, updateProvider, setSwapModal 
               setSwapModal={setSwapModal}
               isMobile={false}
             />
-
             <div className="mr-4"><CoinbaseCreateWalletButton setAccount={setAccount} updateProvider={updateProvider} /></div>
               {!account ? (
                 <button

@@ -10,7 +10,8 @@ import NotFoundErrorBoundary from '../components/errors/NotFoundErrorBoundary'
 const chompLegacyAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const admin1 = process.env.NEXT_PUBLIC_ADMIN1;
 const admin2 = process.env.NEXT_PUBLIC_ADMIN2;
-const adminWallets = [admin1, admin2];
+const admin3 = process.env.NEXT_PUBLIC_ADMIN3;
+const adminWallets = [admin1, admin2, admin3];
 
 export default function CreateNft() {
   const { watch } = useForm({

@@ -9,7 +9,8 @@ import {
 } from '@coinbase/onchainkit/swap'; 
 import { base, baseSepolia } from 'wagmi/chains';
 const chain = process.env.NEXT_PUBLIC_PROD !== 'false' ? base : baseSepolia;
- 
+// const chain = base;
+//  
 export default function SwapComponent({ address }) {
 
   const ETHToken = {    
