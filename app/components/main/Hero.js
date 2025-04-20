@@ -56,12 +56,13 @@ export default function Hero() {
     if (!availableCapabilities || !accountData.chainId) return false;
     const capabilitiesForChain = availableCapabilities[accountData.chainId];
     if (
+      capabilitiesForChain &&
       capabilitiesForChain["paymasterService"] &&
       capabilitiesForChain["paymasterService"].supported
     ) {
       return true;
     }
-    return {};
+    return false;
   }, [availableCapabilities, accountData.chainId]);
 
   const [account, setAccount] = useState(null);
